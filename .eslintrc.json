@@ -1,8 +1,12 @@
 {
-    "extends": "next/core-web-vitals",
+    "root": true,
+    "parser": "@typescript-eslint/parser",
+    "plugins": ["@typescript-eslint"],
+    "extends": ["next/core-web-vitals", "plugin:@typescript-eslint/eslint-recommended", "plugin:@typescript-eslint/recommended"],
     "rules": {
+        "no-console": "warn",
         "no-unused-vars": "error",
-        "semi": "off",
-        "no-console": "warn"
+        "no-undef": "off",
+        "semi": "off"
     }
 }

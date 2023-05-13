@@ -1,6 +1,5 @@
 "use client"
 
-import { childrenProps } from "@/types/childrenProp"
 import * as React from "react"
 import { RecoilRoot } from "recoil"
 import { TailwindScreenSize } from "./TailwindScreenSize"

@@ -1,0 +1,3 @@
+interface workspaceProps {
+    workspaceId?: string
+}
