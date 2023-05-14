@@ -4,7 +4,7 @@
 
 @layer base {
     body {
-        @apply font-normal text-sm bg-gray-100 text-gray-500;
+        @apply font-normal text-sm bg-gray-100 text-gray-500 bg-gradient-to-b from-indigo-200 via-rose-100 via-10% to-20% to-white bg-fixed;
     }
     p {
         @apply font-normal text-sm text-gray-500;
@@ -36,6 +36,18 @@
         @apply font-medium text-indigo-600 hover:text-indigo-700 cursor-pointer inline-flex;
     }
     .menu {
-        @apply font-medium text-gray-500 hover:text-gray-900 cursor-pointer transition duration-200 ease-in-out;
+        @apply font-medium text-gray-700 hover:text-gray-900 cursor-pointer transition duration-200 ease-in-out;
     }
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+    -moz-appearance: textfield;
 }

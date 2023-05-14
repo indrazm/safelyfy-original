@@ -10,7 +10,7 @@ const buttonVariants = tv({
             primary: "bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-600 text-white",
             secondary: "bg-transparent border-1 border-gray-400 hover:bg-gray-900 hover:border-gray-900 hover:text-white text-gray-500",
             danger: "bg-red-300 text-black",
-            ghost: "bg-transparent text-gray-300",
+            ghost: "bg-transparent hover:bg-white text-gray-900 border-1 border-gray-500 border-dashed",
         },
         size: {
             small: "text-xs px-4 py-2",

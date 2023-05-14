@@ -12,10 +12,10 @@ import { toast } from "react-hot-toast"
 import { modeState } from "@/lib/recoil/masterdata"
 import { useRouter } from "next/navigation"
 import moment from "moment"
-
+import type { categoryProps } from "@/lib/recoil/masterdata"
 interface ThingFormProps {
     costCentersData: selectableProps[]
-    categoriesData: selectableProps[]
+    categoriesData: categoryProps[]
     manufacturersData: selectableProps[]
     capacityUnitsData: selectableProps[]
     schedulesData: selectableProps[]
@@ -29,42 +29,94 @@ export const ThingForm = ({ costCentersData, categoriesData, manufacturersData, 
     const [thingData, setThingData] = useRecoilState(thingDataState)
     const setLoading = useSetRecoilState(loadingState)
     const resetThingDataState = useResetRecoilState(thingDataState)
+    const [currentMainCategory, setCurrentMainCategory] = React.useState<selectableProps | null>(null)
+    const [currentSubCategory, setCurrentSubCategory] = React.useState<selectableProps | null>(null)
+
+    /**
+     * *It's a processing data from Categories Data
+     */
+    const mainCategoriesData = categoriesData
+        .filter((item: categoryProps) => item.parentId === null)
+        .map((item: categoryProps) => {
+            return { value: item.id as string, label: item.name }
+        })
+    const subCategoriesData = categoriesData
+        .filter((e: categoryProps) => e.parentId?.id === currentMainCategory?.value)
+        .map((item: categoryProps) => {
+            return { value: item.id as string, label: item.name }
+        })
+    const availableCategoriesData = categoriesData
+        .filter((e: categoryProps) => e.parentId?.id === currentSubCategory?.value)
+        .map((item: categoryProps) => {
+            return { value: item.id as string, label: item.name }
+        })
 
     const handleEventChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { id, value } = event.target
         setThingData({ ...thingData, [id]: value })
     }
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
+    const handleSubmit = async () => {
         setLoading(true)
-        if (mode === "create") {
-            createThing()
-        } else {
-            updateThing()
-        }
+        createThing()
     }
 
     const createThing = async () => {
-        const { name, description, parentId } = categoryData
-        if (!name || !description) {
+        const {
+            idNumber,
+            serialNumber,
+            description,
+            category,
+            yearManufacture,
+            model,
+            capacity1,
+            capacity2,
+            capacity3,
+            capacityUnit,
+            schedule,
+            status,
+            remarks,
+            manufacturer,
+            parentId,
+            submittedBy,
+            expiryDate,
+            inspectionDate,
+            costCenter,
+        } = thingData
+        if (!idNumber || !description || !category || !yearManufacture || !model || !capacity1 || !capacityUnit || !schedule) {
             return
         }
-        const res = await fetch(`${apiUrlClient}/v1/masterdata/categories`, {
+        const res = await fetch(`${apiUrlClient}/v1/thing`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                name,
+                idNumber,
+                serialNumber,
                 description,
-                parentId: parentId?.value,
+                category: category?.value,
+                yearManufacture,
+                model,
+                capacity1,
+                capacity2,
+                capacity3,
+                capacityUnit: capacityUnit?.value,
+                schedule: schedule?.value,
+                status: status?.value,
+                remarks,
+                manufacturer: manufacturer?.value,
+                parentId,
+                submittedBy,
+                expiryDate,
+                inspectionDate,
+                costCenter: costCenter?.value,
                 workspaceId,
             }),
         })
         const data = await res.json()
         if (data.data) {
-            toast.success("Category successfully created")
+            toast.success("Thing successfully created")
             setLoading(false)
             resetThingDataState()
             router.refresh()
@@ -76,42 +128,52 @@ export const ThingForm = ({ costCentersData, categoriesData, manufacturersData, 
         }
     }
 
-    const updateThing = async () => {
-        const { id, name, description, parentId } = categoryData
-        if (!name || !description) {
-            return
-        }
-        const res = await fetch(`${apiUrlClient}/v1/masterdata/categories`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                id,
-                name,
-                description,
-                parentId: parentId?.value,
-            }),
-        })
-        const data = await res.json()
-        if (data.data) {
-            toast.success("Category successfully updated")
-            setLoading(false)
-            resetThingDataState()
-            router.refresh()
-            setMode("view")
-        }
-        if (data.error) {
-            toast.error(data.error.message)
-            setLoading(false)
-        }
-    }
+    // const updateThing = async () => {
+    //     const { id, name, description, parentId } = categoryData
+    //     if (!name || !description) {
+    //         return
+    //     }
+    //     const res = await fetch(`${apiUrlClient}/v1/masterdata/categories`, {
+    //         method: "PUT",
+    //         headers: {
+    //             "Content-Type": "application/json",
+    //         },
+    //         body: JSON.stringify({
+    //             id,
+    //             name,
+    //             description,
+    //             parentId: parentId?.value,
+    //         }),
+    //     })
+    //     const data = await res.json()
+    //     if (data.data) {
+    //         toast.success("Category successfully updated")
+    //         setLoading(false)
+    //         resetThingDataState()
+    //         router.refresh()
+    //         setMode("view")
+    //     }
+    //     if (data.error) {
+    //         toast.error(data.error.message)
+    //         setLoading(false)
+    //     }
+    // }
 
     React.useEffect(() => {
+        /**
+         * * Process the default expiry date and status
+         */
         const fullDate = new Date().toString()
         const todayDate = moment(fullDate).format("yyyy-MM-DD")
-        setThingData({ ...thingData, expiryDate: todayDate, inspectionDate: todayDate })
-    }, [])
+        const setTodayDate = setTimeout(() => {
+            setThingData({ ...thingData, expiryDate: todayDate, inspectionDate: todayDate, status: statusData[8] })
+        }, 100)
+
+        /**
+         * ! Important to clean up the timeout
+         */
+        return () => clearTimeout(setTodayDate)
+    }, [statusData])
 
     return (
         <main className="space-y-12">
@@ -130,7 +192,13 @@ export const ThingForm = ({ costCentersData, categoriesData, manufacturersData, 
                     <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <Input label="Id Number" id="idNumber" placeholder="ID-XXX-XXXX" onChange={handleEventChange} value={thingData.idNumber || ""} />
-                            <Input label="Serial Number" id="serialNumber" placeholder="XXXXX" onChange={handleEventChange} value={thingData.idNumber || ""} />
+                            <Input
+                                label="Serial Number"
+                                id="serialNumber"
+                                placeholder="XXXXX"
+                                onChange={handleEventChange}
+                                value={thingData.serialNumber || ""}
+                            />
                         </div>
                         <TextArea
                             name="description"
@@ -140,31 +208,30 @@ export const ThingForm = ({ costCentersData, categoriesData, manufacturersData, 
                             onChange={handleEventChange}
                             value={thingData.description || ""}
                         />
-
                         <Selectable
                             label="Cost Center"
                             value={thingData.costCenter}
                             options={costCentersData}
-                            // onChange={(e: selectableProps) => setCategoryData({ ...categoryData, parentId: e })}
+                            onChange={(e: selectableProps) => setThingData({ ...thingData, costCenter: e })}
                         />
                         <div className="grid grid-cols-3 gap-4">
                             <Selectable
                                 label="Main Category"
-                                // value={thingData.costCenter}
-                                options={categoriesData}
-                                // onChange={(e: selectableProps) => setCategoryData({ ...categoryData, parentId: e })}
+                                value={currentMainCategory}
+                                options={mainCategoriesData}
+                                onChange={(e: selectableProps) => setCurrentMainCategory(e)}
                             />
                             <Selectable
                                 label="Sub Category"
-                                // value={thingData.costCenter}
-                                options={categoriesData}
-                                // onChange={(e: selectableProps) => setCategoryData({ ...categoryData, parentId: e })}
+                                value={currentSubCategory}
+                                options={subCategoriesData}
+                                onChange={(e: selectableProps) => setCurrentSubCategory(e)}
                             />
                             <Selectable
                                 label="Category"
-                                // value={thingData.costCenter}
-                                options={categoriesData}
-                                // onChange={(e: selectableProps) => setCategoryData({ ...categoryData, parentId: e })}
+                                value={thingData.category}
+                                options={availableCategoriesData}
+                                onChange={(e: selectableProps) => setThingData({ ...thingData, category: e })}
                             />
                         </div>
                     </div>
@@ -183,16 +250,16 @@ export const ThingForm = ({ costCentersData, categoriesData, manufacturersData, 
                         <div className="grid grid-cols-2 gap-4">
                             <Input
                                 label="Year manufacturer"
-                                id="yearManufacturer"
+                                id="yearManufacture"
                                 placeholder="2000"
                                 onChange={handleEventChange}
                                 value={thingData.yearManufacture || ""}
                             />
                             <Selectable
                                 label="Manufacturer"
-                                // value={thingData.costCenter}
+                                value={thingData.manufacturer}
                                 options={manufacturersData}
-                                // onChange={(e: selectableProps) => setCategoryData({ ...categoryData, parentId: e })}
+                                onChange={(e: selectableProps) => setThingData({ ...thingData, manufacturer: e })}
                             />
                         </div>
                     </div>
@@ -235,9 +302,9 @@ export const ThingForm = ({ costCentersData, categoriesData, manufacturersData, 
                         </div>
                         <Selectable
                             label="Capacity Unit"
-                            // value={thingData.costCenter}
+                            value={thingData.capacityUnit}
                             options={capacityUnitsData}
-                            // onChange={(e: selectableProps) => setCategoryData({ ...categoryData, parentId: e })}
+                            onChange={(e: selectableProps) => setThingData({ ...thingData, capacityUnit: e })}
                         />
                     </div>
                 </div>
@@ -254,24 +321,18 @@ export const ThingForm = ({ costCentersData, categoriesData, manufacturersData, 
                         <div className="grid grid-cols-2 gap-4">
                             <Selectable
                                 label="Status"
-                                // value={thingData.costCenter}
+                                value={thingData.status}
                                 options={statusData}
-                                // onChange={(e: selectableProps) => setCategoryData({ ...categoryData, parentId: e })}
+                                onChange={(e: selectableProps) => setThingData({ ...thingData, status: e })}
                             />
                             <Selectable
                                 label="Schedule"
-                                // value={thingData.costCenter}
+                                value={thingData.schedule}
                                 options={schedulesData}
-                                // onChange={(e: selectableProps) => setCategoryData({ ...categoryData, parentId: e })}
+                                onChange={(e: selectableProps) => setThingData({ ...thingData, schedule: e })}
                             />
-                            <Input type="date" id="expiryDate" label="Expiry Date" value={thingData.expiryDate || ""} onChange={handleEventChange} />
-                            <Input
-                                type="date"
-                                id="inspectionDate"
-                                label="Inspection Date"
-                                value={thingData.inspectionDate || ""}
-                                onChange={handleEventChange}
-                            />
+                            <Input type="date" id="expiryDate" label="Expiry Date" value={thingData.expiryDate} onChange={(e) => console.log(e.target.value)} />
+                            <Input type="date" id="inspectionDate" label="Inspection Date" value={thingData.inspectionDate} onChange={handleEventChange} />
                         </div>
                     </div>
                 </div>
@@ -285,8 +346,10 @@ export const ThingForm = ({ costCentersData, categoriesData, manufacturersData, 
                 </div>
                 <div className="w-[calc(100%-320px)]">
                     <div className="space-y-4">
-                        <TextArea label="Remarks" id="remarks" value={thingData.remarks || ""} onChange={handleEventChange} />
-                        <Button type="submit">{mode === "create" ? "Create" : "Update"}</Button>
+                        <TextArea label="Remarks" id="remarks" placeholder="Remarks..." value={thingData.remarks || ""} onChange={handleEventChange} />
+                        <Button onClick={handleSubmit} type="submit">
+                            {mode === "create" ? "Create" : "Update"}
+                        </Button>
                     </div>
                 </div>
             </section>

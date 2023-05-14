@@ -6,7 +6,7 @@ import { workspaceIdState } from "@/lib/recoil/globals"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import * as Popover from "@radix-ui/react-popover"
-import { Card } from "@/components/shared/ui/ card"
+import { Card } from "@/components/shared/ui/card"
 import { Toaster } from "react-hot-toast"
 
 export const AppLayout = ({ children }: childrenProps) => {
@@ -20,10 +20,10 @@ export const AppLayout = ({ children }: childrenProps) => {
 
     return (
         <div className="min-h-screen space-y-12 ">
-            <div className="flex justify-between items-center border-b-1 p-4">
-                <div className="flex gap-8 items-center">
-                    <div>Safelyfy.</div>
-                    <ul className="flex gap-4">
+            <div className="flex justify-between items-center  p-4">
+                <div className="flex gap-12 items-center">
+                    <div className="text-black font-bold">Safelyfy.</div>
+                    <ul className="flex gap-7">
                         <li className="menu">Dashboard</li>
                         <Link href={`/${currentWorkspace}/thing`}>
                             <li className="menu">Things</li>

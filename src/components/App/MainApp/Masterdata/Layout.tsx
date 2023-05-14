@@ -4,6 +4,7 @@ import * as React from "react"
 import { useRecoilValue } from "recoil"
 import { workspaceIdState } from "@/lib/recoil/globals"
 import Link from "next/link"
+
 export const MasterdataLayout = ({ children }: childrenProps) => {
     const workspaceId = useRecoilValue(workspaceIdState)
 

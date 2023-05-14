@@ -18,7 +18,7 @@ export const thingDataState = atom<thingProps>({
         status: null,
         remarks: "",
         manufacturer: null,
-        parentThingId: null,
+        parentId: null,
         submittedBy: null,
         expiryDate: "",
         inspectionDate: "",
@@ -27,7 +27,7 @@ export const thingDataState = atom<thingProps>({
 })
 
 export interface thingProps {
-    id: string
+    id?: string
     idNumber: string
     serialNumber: string
     description: string
@@ -42,7 +42,7 @@ export interface thingProps {
     status: selectableProps | null
     remarks: string
     manufacturer: selectableProps | null
-    parentThingId: selectableProps | null
+    parentId: selectableProps | null
     submittedBy: selectableProps | null
     expiryDate: string
     inspectionDate: string

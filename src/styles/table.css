@@ -1,5 +1,5 @@
 .rc-table {
-    font-size: 13px;
+    font-size: 14px;
     color: #434343;
     transition: opacity 0.3s ease;
     position: relative;
@@ -88,10 +88,11 @@
     visibility: hidden;
 }
 .rc-table tr {
+    background: #fff;
     transition: all 0.3s ease;
 }
 .rc-table tr:hover {
-    background: #ffffff;
+    background: #ededed;
 }
 .rc-table tr.rc-table-row-hover {
     background: #ffffff;

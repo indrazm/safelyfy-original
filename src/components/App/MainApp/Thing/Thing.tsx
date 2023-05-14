@@ -4,32 +4,17 @@ import * as React from "react"
 import Table from "rc-table"
 import { Button } from "@/components/shared/ui/button"
 import { Input } from "@/components/shared/ui/input"
-import { thingDataState, thingProps } from "@/lib/recoil/thing"
-import { useRecoilState, useSetRecoilState, useResetRecoilState } from "recoil"
-import { loadingState } from "@/lib/recoil/globals"
-import { useRouter } from "next/navigation"
+import { thingProps } from "@/lib/recoil/thing"
+import { PlusCircle } from "lucide-react"
+import { Tag } from "@/components/shared/ui/tag"
+// import groupArray from "group-array"
 
-export const AllThing = ({ thingsData, onAdd, onEdit }: { thingsData: never[]; onAdd: () => void; onEdit: () => void }) => {
-    const router = useRouter()
+export const AllThing = ({ thingsData, onAdd }: { thingsData: never[]; onAdd: () => void }) => {
     const [searchTerm, setSearchTerm] = React.useState("")
     const [modifiedData, setModifiedData] = React.useState(thingsData)
-    const [thingData, setThingData] = useRecoilState(thingDataState)
-    const resetThingDataState = useResetRecoilState(thingDataState)
-    const setLoading = useSetRecoilState(loadingState)
 
-    const deleteThing = async (id: string) => {
-        setLoading(true)
-        const res = await fetch(`http://localhost:3000/api/v1/masterdata/thing?deleteId=${id}`, {
-            method: "DELETE",
-        })
-        const data = await res.json()
-        if (data) {
-            setLoading(false)
-            resetThingDataState()
-            router.refresh()
-        }
-    }
-
+    const [statusListOpen, setStatusListOpen] = React.useState(false)
+    // const statusAvailable = groupArray(thingsData, "status.id")
     const columns = [
         {
             title: "Id Number",
@@ -60,8 +45,9 @@ export const AllThing = ({ thingsData, onAdd, onEdit }: { thingsData: never[]; o
         },
         {
             title: "Status",
-            render: (e: thingProps) => {
-                return e.status?.name
+            render: (e: { status: { color: "valid" | "danger" | "warning" | "gray"; name: string } }) => {
+                console.log(e)
+                return <Tag variant={e.status?.color}>{e.status?.name}</Tag>
             },
         },
         {
@@ -110,8 +96,24 @@ export const AllThing = ({ thingsData, onAdd, onEdit }: { thingsData: never[]; o
                 <p>Here is all of workspace&lsquo;s things data</p>
             </div>
             <div className="flex justify-between gap-4">
-                <div className="min-w-[280px] max-w-[400px]">
+                <div className="min-w-[280px] max-w-[400px] flex gap-4">
                     <Input size="small" placeholder="Search something..." type="search" onChange={(e) => setSearchTerm(e.target.value)} />
+                    <div className="relative">
+                        <Button auto variant="ghost" size="small" onClick={() => setStatusListOpen(!statusListOpen)}>
+                            <div className="flex gap-2 items-center">
+                                <PlusCircle size={12} /> Status
+                            </div>
+                        </Button>
+                        {/* {statusListOpen && (
+                            <Card className="absolute z-50 bg-white p-3">
+                                <ul>
+                                    {.map((status, index) => {
+                                        return <li key={index}>{JSON.stringify(status)}</li>
+                                    })}
+                                </ul>
+                            </Card>
+                        )} */}
+                    </div>
                 </div>
                 <Button auto size="small" onClick={onAdd}>
                     Add Thing

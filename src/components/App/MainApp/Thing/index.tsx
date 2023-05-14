@@ -4,17 +4,32 @@ import * as React from "react"
 import { AllThing } from "./Thing"
 import { ThingForm } from "./ThingForm"
 import { useRecoilState } from "recoil"
-import { modeState } from "@/lib/recoil/masterdata"
+import { categoryProps, modeState } from "@/lib/recoil/masterdata"
 
-export const Thing = ({ thingsData }: { thingsData: never[] }) => {
+interface ThingFormProps {
+    thingsData: never[]
+    costCentersData: selectableProps[]
+    categoriesData: categoryProps[]
+    manufacturersData: selectableProps[]
+    capacityUnitsData: selectableProps[]
+    schedulesData: selectableProps[]
+    statusData: selectableProps[]
+}
+
+export const Thing = ({ thingsData, costCentersData, categoriesData, manufacturersData, capacityUnitsData, schedulesData, statusData }: ThingFormProps) => {
     const [mode, setMode] = useRecoilState(modeState)
 
     if (mode === "create" || mode === "edit") {
-        return <ThingForm />
+        return (
+            <ThingForm
+                costCentersData={costCentersData}
+                categoriesData={categoriesData}
+                manufacturersData={manufacturersData}
+                capacityUnitsData={capacityUnitsData}
+                schedulesData={schedulesData}
+                statusData={statusData}
+            />
+        )
     }
-    return (
-        <React.Suspense>
-            <AllThing thingsData={thingsData} onAdd={() => setMode("create")} onEdit={() => setMode("edit")} />
-        </React.Suspense>
-    )
+    return <AllThing thingsData={thingsData} onAdd={() => setMode("create")} />
 }
