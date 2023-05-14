@@ -37,6 +37,11 @@ export interface thingProps {
     capacity1: number
     capacity2: number
     capacity3: number
+    capacity?: {
+        capacity1: number
+        capacity2: number
+        capacity3: number
+    }
     capacityUnit: selectableProps | null
     schedule: selectableProps | null
     status: selectableProps | null

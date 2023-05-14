@@ -3,6 +3,22 @@ import { supabase } from "@/lib/supabase/client"
 
 export async function GET(req: NextRequest) {
     const workspaceId = req.nextUrl.searchParams.get("workspaceId")
+    const thingId = req.nextUrl.searchParams.get("thingId")
+
+    if (thingId) {
+        const { data, error } = await supabase
+            .from("things")
+            .select(
+                "id,idNumber,serialNumber,description,category(name),yearManufacture,model,capacity,capacityUnit(name,symbol),schedule(name),status(id,name,color),remarks,manufacturer(name),parentThingId(idNumber),submittedBy(id,full_name,avatar_url),expiryDate,inspectionDate,costCenter(name,location)"
+            )
+            .eq("id", thingId)
+            .single()
+        if (error) {
+            return NextResponse.json(error)
+        }
+        return NextResponse.json(data)
+    }
+
     const { data, error } = await supabase
         .from("things")
         .select(

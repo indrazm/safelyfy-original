@@ -3,7 +3,7 @@ import { tv } from "tailwind-variants"
 import { twMerge } from "tailwind-merge"
 
 const tagVariants = tv({
-    base: "w-full text-[10px] py-1 text-center font-bold rounded-full transition duration-200 ease-in-out space-y-8",
+    base: "w-fit text-[10px] px-2 py-1 text-center font-bold rounded-full transition duration-200 ease-in-out space-y-8",
     variants: {
         variant: {
             valid: "bg-emerald-100 text-emerald-600 border-emerald-500 border-1",

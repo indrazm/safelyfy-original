@@ -66,7 +66,7 @@ export const departmentDataState = atom<departmentProps>({
     },
 })
 
-type modeProps = "view" | "create" | "edit"
+type modeProps = "view" | "create" | "edit" | "viewSingle"
 
 export interface categoryProps {
     id?: string
