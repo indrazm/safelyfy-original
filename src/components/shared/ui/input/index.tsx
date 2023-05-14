@@ -19,7 +19,7 @@ const inputVariants = tv({
 })
 
 const textAreaVariants = tv({
-    base: "w-full font-medium bg-white text-gray-900 shadow shadow-gray-200 placeholder:text-gray-300 placeholder:font-normal border-1 border-gray-300 hover:border-indigo-800 focus:outline-none focus:ring-4 focus:ring-indigo-200 focus:border-indigo-600 disabled:bg-gray-200 disabled:text-gray-300 rounded-md transition duration-200 ease-in-out",
+    base: "w-full p-3 font-medium bg-white text-gray-900 shadow shadow-gray-200 placeholder:text-gray-300 placeholder:font-normal border-1 border-gray-300 hover:border-indigo-800 focus:outline-none focus:ring-4 focus:ring-indigo-200 focus:border-indigo-600 disabled:bg-gray-200 disabled:text-gray-300 rounded-md transition duration-200 ease-in-out",
 })
 
 type NativeInput = React.InputHTMLAttributes<HTMLInputElement>
@@ -76,33 +76,36 @@ interface SelectableProps {
     onChange: (e: selectableProps) => void
 }
 
-const Selectable = ({ value, options, onChange }: SelectableProps) => {
+const Selectable = ({ value, options, label, onChange }: SelectableProps) => {
     const loading = useRecoilValue(loadingState)
 
     return (
-        <Select
-            isDisabled={loading}
-            isClearable
-            isSearchable
-            value={value}
-            onChange={onChange}
-            options={options}
-            className="shadow shadow-gray-200 text-gray-900 disabled:text-gray-200"
-            styles={{
-                control: (baseStyles, state) => ({
-                    ...baseStyles,
-                    background: state.isDisabled ? "#e5e7eb" : "#fff",
-                    // color: state.isDisabled ? "#d1d5db" : "#111827",
-                    WebkitBoxShadow: state.isFocused ? "0px 0px 0px 4px #c7d2fe" : "none",
-                    borderColor: state.isFocused ? "#4f46e5" : "#d1d5db",
-                    outline: state.isFocused ? "#ff4444" : "none",
-                    boxShadow: "none",
-                    borderRadius: "0.55em",
-                    paddingTop: "4px",
-                    paddingBottom: "4px",
-                }),
-            }}
-        />
+        <div className="space-y-1">
+            {label && <label className="block text-gray-900 font-medium">{label}</label>}
+            <Select
+                isDisabled={loading}
+                isClearable
+                isSearchable
+                value={value}
+                onChange={onChange}
+                options={options}
+                className="shadow shadow-gray-200 text-gray-900 disabled:text-gray-200"
+                styles={{
+                    control: (baseStyles, state) => ({
+                        ...baseStyles,
+                        background: state.isDisabled ? "#e5e7eb" : "#fff",
+                        // color: state.isDisabled ? "#d1d5db" : "#111827",
+                        WebkitBoxShadow: state.isFocused ? "0px 0px 0px 4px #c7d2fe" : "none",
+                        borderColor: state.isFocused ? "#4f46e5" : "#d1d5db",
+                        outline: state.isFocused ? "#ff4444" : "none",
+                        boxShadow: "none",
+                        borderRadius: "0.55em",
+                        paddingTop: "4px",
+                        paddingBottom: "4px",
+                    }),
+                }}
+            />
+        </div>
     )
 }
 

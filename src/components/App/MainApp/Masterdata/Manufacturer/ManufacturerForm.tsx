@@ -4,46 +4,42 @@ import { Input, TextArea } from "@/components/shared/ui/input"
 import { Button } from "@/components/shared/ui/button"
 import * as React from "react"
 import { useRecoilState, useRecoilValue, useResetRecoilState, useSetRecoilState } from "recoil"
-import { categoryDataState } from "@/lib/recoil/masterdata"
+import { manufacturerDataState } from "@/lib/recoil/masterdata"
 import { workspaceIdState, loadingState } from "@/lib/recoil/globals"
-import { Selectable } from "@/components/shared/ui/input"
-import { apiUrlClient } from "@/lib/constant/apiUrl"
-import { toast } from "react-hot-toast"
 import { modeState } from "@/lib/recoil/masterdata"
+import { apiUrlClient } from "@/lib/constant/apiUrl"
 import { useRouter } from "next/navigation"
-interface categoryFormProps {
-    categoriesData: selectableProps[]
-}
+import toast from "react-hot-toast"
 
-export const CategoryForm = ({ categoriesData }: categoryFormProps) => {
+export const ManufacturerForm = () => {
     const router = useRouter()
     const [mode, setMode] = useRecoilState(modeState)
     const workspaceId = useRecoilValue(workspaceIdState)
-    const [categoryData, setCategoryData] = useRecoilState(categoryDataState)
+    const [manufacturerData, setManufacturerData] = useRecoilState(manufacturerDataState)
     const setLoading = useSetRecoilState(loadingState)
-    const resetCategoryData = useResetRecoilState(categoryDataState)
+    const resetManufacturerData = useResetRecoilState(manufacturerDataState)
 
     const handleEventChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { id, value } = event.target
-        setCategoryData({ ...categoryData, [id]: value })
+        setManufacturerData({ ...manufacturerData, [id]: value })
     }
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setLoading(true)
         if (mode === "create") {
-            createCategory()
+            createManufacturer()
         } else {
-            updateCategory()
+            updateManufacturer()
         }
     }
 
-    const createCategory = async () => {
-        const { name, description, parentId } = categoryData
+    const createManufacturer = async () => {
+        const { name, description, website } = manufacturerData
         if (!name || !description) {
             return
         }
-        const res = await fetch(`${apiUrlClient}/v1/masterdata/categories`, {
+        const res = await fetch(`${apiUrlClient}/v1/masterdata/manufacturer`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -51,30 +47,30 @@ export const CategoryForm = ({ categoriesData }: categoryFormProps) => {
             body: JSON.stringify({
                 name,
                 description,
-                parentId: parentId?.value,
+                website,
                 workspaceId,
             }),
         })
         const data = await res.json()
         if (data.data) {
-            toast.success("Category successfully created")
+            toast.success("Manufacturer successfully created")
             setLoading(false)
-            resetCategoryData()
+            resetManufacturerData()
             router.refresh()
             setMode("view")
         }
         if (data.error) {
-            toast.error(data.error.message)
+            toast.error(data.error)
             setLoading(false)
         }
     }
 
-    const updateCategory = async () => {
-        const { id, name, description, parentId } = categoryData
+    const updateManufacturer = async () => {
+        const { id, name, description, website } = manufacturerData
         if (!name || !description) {
             return
         }
-        const res = await fetch(`${apiUrlClient}/v1/masterdata/categories`, {
+        const res = await fetch(`${apiUrlClient}/v1/masterdata/manufacturer`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -83,14 +79,14 @@ export const CategoryForm = ({ categoriesData }: categoryFormProps) => {
                 id,
                 name,
                 description,
-                parentId: parentId?.value,
+                website,
             }),
         })
         const data = await res.json()
         if (data.data) {
-            toast.success("Category successfully updated")
+            toast.success("Manufacturer successfully updated")
             setLoading(false)
-            resetCategoryData()
+            resetManufacturerData()
             router.refresh()
             setMode("view")
         }
@@ -103,32 +99,33 @@ export const CategoryForm = ({ categoriesData }: categoryFormProps) => {
     return (
         <main className="space-y-8 max-w-lg m-auto">
             <div>
-                <h1>{mode === "create" ? "Add Category" : "Edit Category"}</h1>
-                <p>{mode === "create" ? "Create a new category" : "Edit current category"}</p>
+                <h1>{mode === "create" ? "Add Manufacturer" : "Edit Manufacturer"}</h1>
+                <p>{mode === "create" ? "Create a new manufacturer" : "Edit current manufacturer"}</p>
             </div>
             <form onSubmit={handleSubmit}>
                 <div className="space-y-4">
                     <Input
-                        size="medium"
-                        name="name"
-                        label="Name"
                         id="name"
-                        placeholder="Category Name"
+                        size="medium"
+                        label="Name"
+                        placeholder="Manufacturer Name"
                         onChange={handleEventChange}
-                        value={categoryData.name || ""}
+                        value={manufacturerData.name || ""}
                     />
                     <TextArea
-                        name="description"
-                        label="Description"
                         id="description"
-                        placeholder="Category Description"
+                        label="Description"
+                        placeholder="Manufacturer Description"
                         onChange={handleEventChange}
-                        value={categoryData.description || ""}
+                        value={manufacturerData.description || ""}
                     />
-                    <Selectable
-                        value={categoryData.parentId}
-                        options={categoriesData}
-                        onChange={(e: selectableProps) => setCategoryData({ ...categoryData, parentId: e })}
+                    <Input
+                        id="website"
+                        size="medium"
+                        label="Website"
+                        placeholder="Manufacturer Name"
+                        onChange={handleEventChange}
+                        value={manufacturerData.website || ""}
                     />
                     <Button type="submit">{mode === "create" ? "Create" : "Update"}</Button>
                 </div>

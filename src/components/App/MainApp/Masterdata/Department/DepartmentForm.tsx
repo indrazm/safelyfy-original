@@ -1,49 +1,49 @@
 "use client"
 
-import { Input, TextArea } from "@/components/shared/ui/input"
+import { Input, TextArea, Selectable } from "@/components/shared/ui/input"
 import { Button } from "@/components/shared/ui/button"
 import * as React from "react"
 import { useRecoilState, useRecoilValue, useResetRecoilState, useSetRecoilState } from "recoil"
-import { categoryDataState } from "@/lib/recoil/masterdata"
+import { departmentDataState } from "@/lib/recoil/masterdata"
 import { workspaceIdState, loadingState } from "@/lib/recoil/globals"
-import { Selectable } from "@/components/shared/ui/input"
-import { apiUrlClient } from "@/lib/constant/apiUrl"
-import { toast } from "react-hot-toast"
 import { modeState } from "@/lib/recoil/masterdata"
+import { apiUrlClient } from "@/lib/constant/apiUrl"
 import { useRouter } from "next/navigation"
-interface categoryFormProps {
-    categoriesData: selectableProps[]
+import toast from "react-hot-toast"
+
+interface departmentProps {
+    groupsData: selectableProps[]
 }
 
-export const CategoryForm = ({ categoriesData }: categoryFormProps) => {
+export const DepartmentForm = ({ groupsData }: departmentProps) => {
     const router = useRouter()
     const [mode, setMode] = useRecoilState(modeState)
     const workspaceId = useRecoilValue(workspaceIdState)
-    const [categoryData, setCategoryData] = useRecoilState(categoryDataState)
+    const [departmentData, setDepartmentData] = useRecoilState(departmentDataState)
     const setLoading = useSetRecoilState(loadingState)
-    const resetCategoryData = useResetRecoilState(categoryDataState)
+    const resetDepartmentDataState = useResetRecoilState(departmentDataState)
 
     const handleEventChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { id, value } = event.target
-        setCategoryData({ ...categoryData, [id]: value })
+        setDepartmentData({ ...departmentData, [id]: value })
     }
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setLoading(true)
         if (mode === "create") {
-            createCategory()
+            createDepartment()
         } else {
-            updateCategory()
+            updateDepartment()
         }
     }
 
-    const createCategory = async () => {
-        const { name, description, parentId } = categoryData
+    const createDepartment = async () => {
+        const { name, description, group } = departmentData
         if (!name || !description) {
             return
         }
-        const res = await fetch(`${apiUrlClient}/v1/masterdata/categories`, {
+        const res = await fetch(`${apiUrlClient}/v1/masterdata/department`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -51,30 +51,30 @@ export const CategoryForm = ({ categoriesData }: categoryFormProps) => {
             body: JSON.stringify({
                 name,
                 description,
-                parentId: parentId?.value,
+                group: group?.value,
                 workspaceId,
             }),
         })
         const data = await res.json()
         if (data.data) {
-            toast.success("Category successfully created")
+            toast.success("Cost center successfully created")
             setLoading(false)
-            resetCategoryData()
+            resetDepartmentDataState()
             router.refresh()
             setMode("view")
         }
         if (data.error) {
-            toast.error(data.error.message)
+            toast.error(data.error)
             setLoading(false)
         }
     }
 
-    const updateCategory = async () => {
-        const { id, name, description, parentId } = categoryData
-        if (!name || !description) {
+    const updateDepartment = async () => {
+        const { id, name, description, group } = departmentData
+        if (!name || !description || !location || !group) {
             return
         }
-        const res = await fetch(`${apiUrlClient}/v1/masterdata/categories`, {
+        const res = await fetch(`${apiUrlClient}/v1/masterdata/department`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -83,14 +83,14 @@ export const CategoryForm = ({ categoriesData }: categoryFormProps) => {
                 id,
                 name,
                 description,
-                parentId: parentId?.value,
+                group: group ? group?.value : null,
             }),
         })
         const data = await res.json()
         if (data.data) {
-            toast.success("Category successfully updated")
+            toast.success("Department successfully updated")
             setLoading(false)
-            resetCategoryData()
+            resetDepartmentDataState()
             router.refresh()
             setMode("view")
         }
@@ -103,32 +103,24 @@ export const CategoryForm = ({ categoriesData }: categoryFormProps) => {
     return (
         <main className="space-y-8 max-w-lg m-auto">
             <div>
-                <h1>{mode === "create" ? "Add Category" : "Edit Category"}</h1>
-                <p>{mode === "create" ? "Create a new category" : "Edit current category"}</p>
+                <h1>{mode === "create" ? "Add Department" : "Edit Department"}</h1>
+                <p>{mode === "create" ? "Create a new department" : "Edit current department"}</p>
             </div>
             <form onSubmit={handleSubmit}>
                 <div className="space-y-4">
-                    <Input
-                        size="medium"
-                        name="name"
-                        label="Name"
-                        id="name"
-                        placeholder="Category Name"
-                        onChange={handleEventChange}
-                        value={categoryData.name || ""}
-                    />
+                    <Input id="name" size="medium" label="Name" placeholder="Department Name" onChange={handleEventChange} value={departmentData.name || ""} />
                     <TextArea
-                        name="description"
-                        label="Description"
                         id="description"
-                        placeholder="Category Description"
+                        label="Description"
+                        placeholder="Department Description"
                         onChange={handleEventChange}
-                        value={categoryData.description || ""}
+                        value={departmentData.description || ""}
                     />
                     <Selectable
-                        value={categoryData.parentId}
-                        options={categoriesData}
-                        onChange={(e: selectableProps) => setCategoryData({ ...categoryData, parentId: e })}
+                        value={departmentData.group}
+                        label="Group"
+                        options={groupsData}
+                        onChange={(e: selectableProps) => setDepartmentData({ ...departmentData, group: e })}
                     />
                     <Button type="submit">{mode === "create" ? "Create" : "Update"}</Button>
                 </div>
