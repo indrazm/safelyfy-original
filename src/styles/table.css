@@ -72,7 +72,7 @@
     text-align: left;
 }
 .rc-table th {
-    background: #f7f7f7;
+    background: #fff;
     font-weight: bold;
     transition: background 0.3s ease;
     border-bottom: 1px solid #dddddd;
@@ -92,7 +92,7 @@
     transition: all 0.3s ease;
 }
 .rc-table tr:hover {
-    background: #ededed;
+    background: #eef2ff;
 }
 .rc-table tr.rc-table-row-hover {
     background: #ffffff;

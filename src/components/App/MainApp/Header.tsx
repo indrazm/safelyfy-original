@@ -8,23 +8,26 @@ import { useSetRecoilState } from "recoil"
 import { workspaceIdState } from "@/lib/recoil/globals"
 import { usePathname } from "next/navigation"
 import { Menu } from "lucide-react"
+import { modeState } from "@/lib/recoil/masterdata"
+
 export const Header = () => {
     const currentPath = usePathname()
     const currentWorkspace = currentPath.split("/")[1]
     const setWorkspaceId = useSetRecoilState(workspaceIdState)
+    const setMode = useSetRecoilState(modeState)
 
     React.useEffect(() => {
         setWorkspaceId(currentWorkspace)
     }, [currentWorkspace])
 
     return (
-        <div className="sticky top-0 w-full backdrop-blur-md bg-white/5 border-b-1 border-indigo-200/50">
+        <div className="sticky z-40 top-0 w-full backdrop-blur-md bg-white/5 border-b-1 border-indigo-200/50">
             <div className="flex justify-between items-center  p-4">
                 <div className="flex gap-12 items-center">
                     <div className="text-black font-bold">Safelyfy.</div>
                     <ul className="gap-7 hidden sm:flex">
                         <li className="menu">Dashboard</li>
-                        <Link href={`/${currentWorkspace}/thing`}>
+                        <Link href={`/${currentWorkspace}/thing`} onClick={() => setMode("view")}>
                             <li className="menu">Things</li>
                         </Link>
                         <li className="menu">Inspection</li>
@@ -36,22 +39,22 @@ export const Header = () => {
                                     <Popover.Content sideOffset={5}>
                                         <Card className="ml-10 p-4 bg-white">
                                             <ul className="text-left flex flex-col gap-2 w-fit">
-                                                <Link href={`/${currentWorkspace}/masterdata/categories`}>
+                                                <Link href={`/${currentWorkspace}/masterdata/categories`} onClick={() => setMode("view")}>
                                                     <li className="menu text-left">Categories</li>
                                                 </Link>
-                                                <Link href={`/${currentWorkspace}/masterdata/manufacturer`}>
+                                                <Link href={`/${currentWorkspace}/masterdata/manufacturer`} onClick={() => setMode("view")}>
                                                     <li className="menu text-left">Manufacturer</li>
                                                 </Link>
-                                                <Link href={`/${currentWorkspace}/masterdata/cost-center`}>
+                                                <Link href={`/${currentWorkspace}/masterdata/cost-center`} onClick={() => setMode("view")}>
                                                     <li className="menu text-left">Cost center</li>
                                                 </Link>
-                                                <Link href={`/${currentWorkspace}/masterdata/location`}>
+                                                <Link href={`/${currentWorkspace}/masterdata/location`} onClick={() => setMode("view")}>
                                                     <li className="menu text-left">Location</li>
                                                 </Link>
-                                                <Link href={`/${currentWorkspace}/masterdata/group`}>
+                                                <Link href={`/${currentWorkspace}/masterdata/group`} onClick={() => setMode("view")}>
                                                     <li className="menu text-left">Group</li>
                                                 </Link>
-                                                <Link href={`/${currentWorkspace}/masterdata/department`}>
+                                                <Link href={`/${currentWorkspace}/masterdata/department`} onClick={() => setMode("view")}>
                                                     <li className="menu text-left">Department</li>
                                                 </Link>
                                             </ul>

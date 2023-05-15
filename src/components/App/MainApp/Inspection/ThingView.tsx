@@ -2,16 +2,14 @@
 
 import { Button } from "@/components/shared/ui/button"
 import { Input, TextArea } from "@/components/shared/ui/input"
+import { Tag } from "@/components/shared/ui/tag"
 import { thingProps } from "@/lib/recoil/thing"
-import { usePathname } from "next/navigation"
-import Link from "next/link"
 
 interface ThingViewProps {
     thingData: thingProps
 }
 
 export const ThingView = ({ thingData }: ThingViewProps) => {
-    const currentPath = usePathname()
     return (
         <main className="space-y-12">
             <section className="grid grid-cols-2 items-end">
@@ -23,11 +21,9 @@ export const ThingView = ({ thingData }: ThingViewProps) => {
                     <Button auto size="small" variant="secondary">
                         Inspection History
                     </Button>
-                    <Link href={`${currentPath}/add-inspection`}>
-                        <Button auto size="small" variant="secondary">
-                            Add Inspection
-                        </Button>
-                    </Link>
+                    <Button auto size="small" variant="secondary">
+                        Add Inspection
+                    </Button>
                 </div>
             </section>
 

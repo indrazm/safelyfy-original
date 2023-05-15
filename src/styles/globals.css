@@ -36,7 +36,7 @@
         @apply font-medium text-indigo-600 hover:text-indigo-700 cursor-pointer inline-flex;
     }
     .menu {
-        @apply font-medium text-gray-700 hover:text-gray-900 cursor-pointer transition duration-200 ease-in-out;
+        @apply font-medium text-gray-700 hover:text-indigo-700 cursor-pointer transition duration-200 ease-in-out;
     }
 }
 

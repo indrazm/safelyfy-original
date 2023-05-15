@@ -21,16 +21,25 @@ const inputVariants = tv({
 
 const textAreaVariants = tv({
     base: "w-full p-3 font-medium resize-none bg-white text-gray-900 shadow shadow-gray-200 placeholder:text-gray-300 placeholder:font-normal border-1 border-gray-300 hover:border-indigo-800 focus:outline-none focus:ring-4 focus:ring-indigo-200 focus:border-indigo-600 disabled:bg-gray-200 disabled:text-gray-300 rounded-md transition duration-200 ease-in-out",
+    variants: {
+        size: {
+            small: "text-xs px-2 py-2",
+            medium: "text-sm px-3 py-3",
+            large: "text-lg px-4 py-3",
+        },
+    },
 })
 
 type NativeInput = React.InputHTMLAttributes<HTMLInputElement>
+type NativeTextArea = React.InputHTMLAttributes<HTMLTextAreaElement>
 interface inputProps extends Omit<NativeInput, "size"> {
     label?: string
     size?: "medium" | "large" | "small"
     className?: string
 }
-interface textAreaProps extends React.InputHTMLAttributes<HTMLTextAreaElement> {
+interface textAreaProps extends Omit<NativeTextArea, "size"> {
     label?: string
+    size?: "medium" | "large" | "small"
 }
 
 const Input = ({ size, label, className, ...props }: inputProps) => {
@@ -48,7 +57,7 @@ const Input = ({ size, label, className, ...props }: inputProps) => {
     )
 }
 
-const TextArea = ({ label, ...props }: textAreaProps) => {
+const TextArea = ({ size, label, ...props }: textAreaProps) => {
     const loading = useRecoilValue(loadingState)
 
     return (
@@ -58,7 +67,7 @@ const TextArea = ({ label, ...props }: textAreaProps) => {
                     {label}
                 </label>
             )}
-            <textarea rows={4} disabled={loading} className={textAreaVariants()} {...props} />
+            <textarea rows={4} disabled={loading} className={textAreaVariants({ size })} {...props} />
         </div>
     )
 }
