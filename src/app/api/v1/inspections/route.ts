@@ -3,9 +3,30 @@ import { supabase } from "@/lib/supabase/client"
 
 export async function GET(req: NextRequest) {
     const workspaceId = req.nextUrl.searchParams.get("workspaceId")
+    const inspectionId = req.nextUrl.searchParams.get("inspectionId")
+    const thingId = req.nextUrl.searchParams.get("thingId")
+
+    if (thingId) {
+        const { data, error } = await supabase
+            .from("inspections")
+            .select("*,inspector(full_name,avatar_url),submittedBy(full_name,avatar_url),invoiceNumber(invoiceNumber),status(name,color),thingId(idNumber)")
+            .eq("id", inspectionId)
+
+        return NextResponse.json({ data, error })
+    }
+
+    if (inspectionId) {
+        const { data, error } = await supabase
+            .from("inspections")
+            .select("*,inspector(full_name,avatar_url),submittedBy(full_name,avatar_url),invoiceNumber(invoiceNumber),status(name,color),thingId(idNumber)")
+            .eq("id", inspectionId)
+            .single()
+
+        return NextResponse.json({ data, error })
+    }
     const { data, error } = await supabase
         .from("inspections")
-        .select("*,status(id,name),inspector(full_name,avatar_url),submittedBy(full_name,avatar_url)invoiceNumber(invoiceNumber)")
+        .select("*,inspector(full_name,avatar_url),submittedBy(full_name,avatar_url),invoiceNumber(invoiceNumber),status(name,color),thingId(idNumber)")
         .eq("workspaceId", workspaceId)
         .order("created_at", { ascending: true })
     if (error) {

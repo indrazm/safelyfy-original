@@ -30,8 +30,12 @@ export const Header = () => {
                         <Link href={`/${currentWorkspace}/thing`} onClick={() => setMode("view")}>
                             <li className="menu">Things</li>
                         </Link>
-                        <li className="menu">Inspection</li>
-                        <li className="menu">Invoice</li>
+                        <Link href={`/${currentWorkspace}/inspection`} onClick={() => setMode("view")}>
+                            <li className="menu">Inspection</li>
+                        </Link>
+                        <Link href={`/${currentWorkspace}/invoice`} onClick={() => setMode("view")}>
+                            <li className="menu">Invoice</li>
+                        </Link>
                         <li>
                             <Popover.Root>
                                 <Popover.Trigger className="menu">Master data</Popover.Trigger>

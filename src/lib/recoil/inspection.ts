@@ -3,6 +3,8 @@ import { atom } from "recoil"
 export const inspectionDataState = atom<inspectionDataProps>({
     key: "inspectionDataState",
     default: {
+        id: "",
+        inspectionNumber: "",
         inspectionDate: new Date(Date.now()),
         expiryDate: null,
         findings: "",
@@ -18,6 +20,8 @@ export const inspectionDataState = atom<inspectionDataProps>({
 })
 
 export interface inspectionDataProps {
+    id?: string
+    inspectionNumber: string
     inspectionDate: Date | null | string
     expiryDate: Date | null | string
     findings?: string
@@ -26,6 +30,7 @@ export interface inspectionDataProps {
     certificateNumber?: string
     certificateReceiver?: string
     invoice: selectableProps | null
+    invoiceNumber?: { invoiceNumber: string }
     inspector?: selectableProps | null
     status?: selectableProps | null
     submittedBy?: string
