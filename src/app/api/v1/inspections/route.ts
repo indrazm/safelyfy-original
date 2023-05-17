@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     if (thingId) {
         const { data, error } = await supabase
             .from("inspections")
-            .select("*,inspector(full_name,avatar_url),submittedBy(full_name,avatar_url),invoiceNumber(invoiceNumber),status(name,color),thingId(idNumber)")
+            .select("*,inspector(full_name,avatar_url),submittedBy(full_name,avatar_url),invoiceNumber(id,invoiceNumber),status(name,color),thingId(idNumber)")
             .eq("id", inspectionId)
 
         return NextResponse.json({ data, error })
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
     if (inspectionId) {
         const { data, error } = await supabase
             .from("inspections")
-            .select("*,inspector(full_name,avatar_url),submittedBy(full_name,avatar_url),invoiceNumber(invoiceNumber),status(name,color),thingId(idNumber)")
+            .select("*,inspector(full_name,avatar_url),submittedBy(full_name,avatar_url),invoiceNumber(id,invoiceNumber),status(name,color),thingId(idNumber)")
             .eq("id", inspectionId)
             .single()
 
@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
     }
     const { data, error } = await supabase
         .from("inspections")
-        .select("*,inspector(full_name,avatar_url),submittedBy(full_name,avatar_url),invoiceNumber(invoiceNumber),status(name,color),thingId(idNumber)")
+        .select("*,inspector(full_name,avatar_url),submittedBy(full_name,avatar_url),invoiceNumber(id,invoiceNumber),status(name,color),thingId(idNumber)")
         .eq("workspaceId", workspaceId)
         .order("created_at", { ascending: true })
     if (error) {
@@ -38,6 +38,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
     const body = await req.json()
     const {
+        inspectionNumber,
         timesheet,
         thingId,
         inspectionDate,
@@ -56,6 +57,7 @@ export async function POST(req: NextRequest) {
         .from("inspections")
         .insert([
             {
+                inspectionNumber,
                 timesheet,
                 thingId,
                 inspectionDate,

@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
         const { data, error } = await supabase
             .from("things")
             .select(
-                "id,idNumber,serialNumber,description,category(name),yearManufacture,model,capacity,capacityUnit(name,symbol),schedule(name),status(id,name,color),remarks,manufacturer(name),parentThingId(idNumber),submittedBy(id,full_name,avatar_url),expiryDate,inspectionDate,costCenter(name,location)"
+                "id,idNumber,serialNumber,description,category(name),yearManufacture,model,capacity,capacityUnit(name,symbol),schedule(name,intervalValue,intervalType),status(id,name,color),remarks,manufacturer(name),parentThingId(idNumber),submittedBy(id,full_name,avatar_url),expiryDate,inspectionDate,costCenter(name,location)"
             )
             .eq("id", thingId)
             .single()
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     const { data, error } = await supabase
         .from("things")
         .select(
-            "id,idNumber,serialNumber,description,category(name),yearManufacture,model,capacity,capacityUnit(name,symbol),schedule(name),status(id,name,color),remarks,manufacturer(name),parentThingId(idNumber),submittedBy(id,full_name,avatar_url),expiryDate,inspectionDate,costCenter(name,location)"
+            "id,idNumber,serialNumber,description,category(name),yearManufacture,model,capacity,capacityUnit(name,symbol),schedule(name,intervalValue,intervalType),status(id,name,color),remarks,manufacturer(name),parentThingId(idNumber),submittedBy(id,full_name,avatar_url),expiryDate,inspectionDate,costCenter(name,location)"
         )
         .eq("workspaceId", workspaceId)
         .eq("deleted", false)

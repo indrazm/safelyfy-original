@@ -1,6 +1,6 @@
 "use client"
 
-import { Input, TextArea } from "@/components/shared/ui/input"
+import { FileDropZone, Input, TextArea } from "@/components/shared/ui/input"
 import { Button } from "@/components/shared/ui/button"
 import * as React from "react"
 import { useRecoilState, useRecoilValue, useResetRecoilState, useSetRecoilState } from "recoil"
@@ -13,6 +13,9 @@ import { modeState } from "@/lib/recoil/masterdata"
 import { useRouter } from "next/navigation"
 import moment from "moment"
 import type { categoryProps } from "@/lib/recoil/masterdata"
+import { handleUploadFiles } from "@/lib/supabase/storage"
+import { FileWithPath } from "react-dropzone"
+import { FileText, X } from "lucide-react"
 interface ThingFormProps {
     costCentersData: selectableProps[]
     categoriesData: categoryProps[]
@@ -31,6 +34,7 @@ export const ThingForm = ({ costCentersData, categoriesData, manufacturersData, 
     const resetThingDataState = useResetRecoilState(thingDataState)
     const [currentMainCategory, setCurrentMainCategory] = React.useState<selectableProps | null>(null)
     const [currentSubCategory, setCurrentSubCategory] = React.useState<selectableProps | null>(null)
+    const [documents, setDocuments] = React.useState<FileWithPath[]>([])
 
     /**
      * *It's a processing data from Categories Data
@@ -54,6 +58,21 @@ export const ThingForm = ({ costCentersData, categoriesData, manufacturersData, 
     const handleEventChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { id, value } = event.target
         setThingData({ ...thingData, [id]: value })
+    }
+
+    const handleFiles = (files: FileWithPath[]) => {
+        const filesArray = [...documents]
+        files.forEach((file) => {
+            filesArray.push(file)
+        })
+        setDocuments(filesArray)
+        // console.log(files)
+    }
+
+    const handleDeleteObjectInArrayByIndex = (index: number) => {
+        const filesArray = [...documents]
+        filesArray.splice(index, 1)
+        setDocuments(filesArray)
     }
 
     const handleSubmit = async () => {
@@ -116,6 +135,7 @@ export const ThingForm = ({ costCentersData, categoriesData, manufacturersData, 
         })
         const data = await res.json()
         if (data.data) {
+            handleUploadFiles({ bucket: "things", files: documents, folderId: data.data.id })
             toast.success("Thing successfully created")
             setLoading(false)
             resetThingDataState()
@@ -347,6 +367,22 @@ export const ThingForm = ({ costCentersData, categoriesData, manufacturersData, 
                 <div className="w-[calc(100%-320px)]">
                     <div className="space-y-4">
                         <TextArea label="Remarks" id="remarks" placeholder="Remarks..." value={thingData.remarks || ""} onChange={handleEventChange} />
+                        <FileDropZone label="Thing Documents" onFilesChange={handleFiles} />
+                        <div className="flex gap-2 flex-wrap">
+                            {documents.map((file, index) => {
+                                return (
+                                    <div className="w-fit flex gap-4 items-center bg-white border-1 rounded-md shadow border-gray-300 p-2" key={index}>
+                                        <div className="flex gap-2 items-center">
+                                            <FileText size={16} />
+                                            <div>{file.name}</div>
+                                        </div>
+                                        <div>
+                                            <X className="cursor-pointer" size={16} onClick={() => handleDeleteObjectInArrayByIndex(index)} />
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
                         <Button onClick={handleSubmit} type="submit">
                             {mode === "create" ? "Create" : "Update"}
                         </Button>

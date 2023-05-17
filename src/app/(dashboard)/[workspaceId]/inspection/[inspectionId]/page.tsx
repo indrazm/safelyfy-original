@@ -4,8 +4,11 @@ import { InspectionView } from "@/components/App/MainApp/Inspection/InspectionVi
 export default async function Page({ params }: { params: { inspectionId: string } }) {
     const { inspectionId } = params
     const inspectionData = await getInspectionData(inspectionId)
+    const invoiceId = await inspectionData.invoiceNumber.id
+    const invoiceData = await getInvoiceData(invoiceId)
+    console.log({ invoiceId, invoiceData })
 
-    return <InspectionView inspectionData={inspectionData} />
+    return <InspectionView inspectionData={inspectionData} invoiceData={invoiceData} />
 }
 
 async function getInspectionData(inspectionId: string) {
@@ -13,5 +16,12 @@ async function getInspectionData(inspectionId: string) {
         cache: "no-cache",
     })
     const { data } = await response.json()
+    return data
+}
+async function getInvoiceData(invoiceId: string) {
+    const response = await fetch(`${apiUrlServer}/v1/invoice?invoiceId=${invoiceId}`, {
+        cache: "no-cache",
+    })
+    const data = await response.json()
     return data
 }

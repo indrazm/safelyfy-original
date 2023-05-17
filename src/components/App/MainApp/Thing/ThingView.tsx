@@ -1,10 +1,13 @@
 "use client"
 
+import * as React from "react"
 import { Button } from "@/components/shared/ui/button"
 import { Input, TextArea } from "@/components/shared/ui/input"
 import { thingProps } from "@/lib/recoil/thing"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
+import { listingFiles } from "@/lib/supabase/storage"
+import { FileText } from "lucide-react"
 
 interface ThingViewProps {
     thingData: thingProps
@@ -12,6 +15,16 @@ interface ThingViewProps {
 
 export const ThingView = ({ thingData }: ThingViewProps) => {
     const currentPath = usePathname()
+    const [documents, setDocuments] = React.useState<any[]>([])
+
+    const handleLoadFiles = async () => {
+        const { data }: any[] = await listingFiles({ bucket: "things", folderId: thingData.id as string })
+        setDocuments(data)
+    }
+
+    React.useEffect(() => {
+        handleLoadFiles()
+    }, [thingData])
     return (
         <main className="space-y-12">
             <section className="grid grid-cols-2 items-end">
@@ -109,9 +122,26 @@ export const ThingView = ({ thingData }: ThingViewProps) => {
                     <h2>Remarks and Document</h2>
                     <p>Detailed Information of the Thing</p>
                 </div>
-                <div className="w-[calc(100%-320px)]">
+                <div className="w-[calc(100%-320px)] space-y-4">
                     <div className="space-y-4">
                         <TextArea readOnly label="Remarks" value={thingData.remarks || ""} />
+                    </div>
+                    <div className="space-y-1">
+                        <div className="block text-gray-900 font-medium">Documents</div>
+                        <div className="flex gap-2 flex-wrap">
+                            {documents.length > 0
+                                ? documents.map((file: File, index) => {
+                                      return (
+                                          <div className="w-fit flex gap-4 items-center bg-white border-1 rounded-md shadow border-gray-300 p-2" key={index}>
+                                              <div className="flex gap-2 items-center">
+                                                  <FileText size={16} />
+                                                  <div>{file.name}</div>
+                                              </div>
+                                          </div>
+                                      )
+                                  })
+                                : "No files found"}
+                        </div>
                     </div>
                 </div>
             </section>

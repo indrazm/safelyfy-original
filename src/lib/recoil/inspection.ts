@@ -1,11 +1,11 @@
 import { atom } from "recoil"
-
+import moment from "moment"
 export const inspectionDataState = atom<inspectionDataProps>({
     key: "inspectionDataState",
     default: {
         id: "",
         inspectionNumber: "",
-        inspectionDate: new Date(Date.now()),
+        inspectionDate: moment(new Date(Date.now())).format("yyyy-MM-DD"),
         expiryDate: null,
         findings: "",
         operator: "",

@@ -1,6 +1,6 @@
 "use client"
 
-import { Input, TextArea } from "@/components/shared/ui/input"
+import { FileDropZone, Input, TextArea } from "@/components/shared/ui/input"
 import { Button } from "@/components/shared/ui/button"
 import * as React from "react"
 import { useRecoilState, useRecoilValue, useResetRecoilState, useSetRecoilState } from "recoil"
@@ -8,28 +8,39 @@ import { workspaceIdState, loadingState } from "@/lib/recoil/globals"
 import { Selectable } from "@/components/shared/ui/input"
 import { apiUrlClient } from "@/lib/constant/apiUrl"
 import { toast } from "react-hot-toast"
-import { modeState } from "@/lib/recoil/masterdata"
 import { useRouter } from "next/navigation"
 import { inspectionDataState } from "@/lib/recoil/inspection"
 import { thingProps } from "@/lib/recoil/thing"
 import OutsideClickHandler from "react-outside-click-handler"
+import { addIntervalToDate } from "@/lib/addIntervalToDate"
+import moment from "moment"
+import { FileWithPath } from "react-dropzone"
+import { FileText, X } from "lucide-react"
+import { handleUploadFiles } from "@/lib/supabase/storage"
 
+interface thingPropsExtended extends Omit<thingProps, "schedule"> {
+    schedule: {
+        name: string
+        intervalValue: number
+        intervalType: string
+    }
+}
 interface InspectionFormProps {
     usersData: selectableProps[]
     invoicesData: selectableProps[]
     statusData: selectableProps[]
     thingId: string
-    thingData: thingProps
+    thingData: thingPropsExtended
 }
 
 export const InspectionForm = ({ thingData, thingId, usersData, invoicesData, statusData }: InspectionFormProps) => {
     const router = useRouter()
-    const [mode, setMode] = useRecoilState(modeState)
     const workspaceId = useRecoilValue(workspaceIdState)
     const [inspectionData, setInspectionData] = useRecoilState(inspectionDataState)
     const setLoading = useSetRecoilState(loadingState)
     const resetInspectionDataState = useResetRecoilState(inspectionDataState)
     const [thingInformationOpen, setThingInformationOpen] = React.useState(false)
+    const [documents, setDocuments] = React.useState<FileWithPath[]>([])
 
     const handleEventChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { id, value } = event.target
@@ -38,13 +49,24 @@ export const InspectionForm = ({ thingData, thingId, usersData, invoicesData, st
 
     const handleSubmit = async () => {
         setLoading(true)
-        console.log({ inspectionData })
         createInspection()
     }
 
     const createInspection = async () => {
-        const { inspectionDate, expiryDate, timesheet, findings, operator, certificateNumber, certificateReceiver, invoice, inspector, status } = inspectionData
-        if (!inspectionDate || !expiryDate || !timesheet || !findings || !invoice || !inspector) {
+        const {
+            inspectionNumber,
+            inspectionDate,
+            expiryDate,
+            timesheet,
+            findings,
+            operator,
+            certificateNumber,
+            certificateReceiver,
+            invoice,
+            inspector,
+            status,
+        } = inspectionData
+        if (!inspectionNumber || !inspectionDate || !expiryDate || !timesheet || !findings || !invoice || !inspector) {
             toast.error("Please fill all fields")
             setLoading(false)
             return
@@ -57,6 +79,7 @@ export const InspectionForm = ({ thingData, thingId, usersData, invoicesData, st
             body: JSON.stringify({
                 thingId,
                 inspectionDate,
+                inspectionNumber,
                 expiryDate,
                 findings,
                 operator,
@@ -72,17 +95,50 @@ export const InspectionForm = ({ thingData, thingId, usersData, invoicesData, st
         })
         const data = await res.json()
         if (data.data) {
+            handleUploadFiles({ bucket: "inspections", files: documents, folderId: data.data.id })
             toast.success("Inspection successfully created")
             setLoading(false)
             resetInspectionDataState()
             router.refresh()
-            setMode("view")
+            router.back()
         }
         if (data.error) {
             toast.error(data.error.message)
             setLoading(false)
         }
     }
+
+    const handleFiles = (files: FileWithPath[]) => {
+        const filesArray = [...documents]
+        files.forEach((file) => {
+            filesArray.push(file)
+        })
+        setDocuments(filesArray)
+        // console.log(files)
+    }
+
+    const handleDeleteObjectInArrayByIndex = (index: number) => {
+        const filesArray = [...documents]
+        filesArray.splice(index, 1)
+        setDocuments(filesArray)
+    }
+
+    React.useEffect(() => {
+        const dateToday = moment(new Date(inspectionData.inspectionDate as Date)).format("yyyy-MM-DD")
+        const expiryDate = addIntervalToDate({
+            date: new Date(dateToday),
+            intervalValue: thingData.schedule.intervalValue,
+            intervalType: thingData.schedule.intervalType,
+        })
+        const formattedExpiryDate = moment(expiryDate).format("yyyy-MM-DD")
+        const setTimer = setTimeout(() => {
+            setInspectionData({ ...inspectionData, expiryDate: formattedExpiryDate })
+        }, 200)
+
+        return () => {
+            clearTimeout(setTimer)
+        }
+    }, [inspectionData.inspectionDate])
 
     return (
         <>
@@ -117,18 +173,25 @@ export const InspectionForm = ({ thingData, thingId, usersData, invoicesData, st
                     </div>
                     <div className="w-[calc(100%-320px)]">
                         <div className="space-y-4">
+                            <Input
+                                label="Inspection Number"
+                                id="inspectionNumber"
+                                placeholder="INS-0000"
+                                onChange={handleEventChange}
+                                value={inspectionData.inspectionNumber || ""}
+                            />
                             <div className="grid grid-cols-2 gap-4">
                                 <Input
                                     type="date"
                                     label="Inspection date"
                                     id="inspectionDate"
-                                    placeholder="ID-XXX-XXXX"
-                                    onChange={handleEventChange}
+                                    onChange={(e) => setInspectionData({ ...inspectionData, inspectionDate: moment(e.target.value).format("yyyy-MM-DD") })}
                                     value={inspectionData.inspectionDate?.toString() || ""}
                                 />
                                 <Input
+                                    readOnly
                                     type="date"
-                                    label="Expiry date"
+                                    label={`Expiry date - ${thingData.schedule?.name}`}
                                     id="expiryDate"
                                     placeholder="XXXXX"
                                     onChange={handleEventChange}
@@ -200,6 +263,23 @@ export const InspectionForm = ({ thingData, thingId, usersData, invoicesData, st
                                     onChange={handleEventChange}
                                 />
                             </div>
+
+                            <FileDropZone label="Inspection Documents" onFilesChange={handleFiles} />
+                            <div className="flex gap-2 flex-wrap">
+                                {documents.map((file, index) => {
+                                    return (
+                                        <div className="w-fit flex gap-4 items-center bg-white border-1 rounded-md shadow border-gray-300 p-2" key={index}>
+                                            <div className="flex gap-2 items-center">
+                                                <FileText size={16} />
+                                                <div>{file.name}</div>
+                                            </div>
+                                            <div>
+                                                <X className="cursor-pointer" size={16} onClick={() => handleDeleteObjectInArrayByIndex(index)} />
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
                         </div>
                         <div className="">
                             <Button onClick={handleSubmit} type="submit">
@@ -213,7 +293,7 @@ export const InspectionForm = ({ thingData, thingId, usersData, invoicesData, st
     )
 }
 
-const ThingDetails = ({ thingData }: { thingData: thingProps }) => {
+const ThingDetails = ({ thingData }: { thingData: thingPropsExtended }) => {
     return (
         <div className="fixed h-full w-1/3 top-0 right-0 z-50 bg-white border-1 p-20 space-y-8 overflow-auto">
             {/* Main Information Section */}
@@ -291,10 +371,8 @@ const ThingDetails = ({ thingData }: { thingData: thingProps }) => {
                     <h2>Remarks and Document</h2>
                     <p>Detailed Information of the Thing</p>
                 </div>
-                <div>
-                    <div className="space-y-4">
-                        <TextArea readOnly label="Remarks" value={thingData.remarks || ""} />
-                    </div>
+                <div className="space-y-4">
+                    <TextArea readOnly label="Remarks" value={thingData.remarks || ""} />
                 </div>
             </section>
         </div>
