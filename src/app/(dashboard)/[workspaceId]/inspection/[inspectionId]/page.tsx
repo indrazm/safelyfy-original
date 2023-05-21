@@ -6,7 +6,6 @@ export default async function Page({ params }: { params: { inspectionId: string 
     const inspectionData = await getInspectionData(inspectionId)
     const invoiceId = await inspectionData.invoiceNumber.id
     const invoiceData = await getInvoiceData(invoiceId)
-    console.log({ invoiceId, invoiceData })
 
     return <InspectionView inspectionData={inspectionData} invoiceData={invoiceData} />
 }

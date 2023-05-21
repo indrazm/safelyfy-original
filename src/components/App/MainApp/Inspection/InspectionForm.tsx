@@ -17,6 +17,7 @@ import moment from "moment"
 import { FileWithPath } from "react-dropzone"
 import { FileText, X } from "lucide-react"
 import { handleUploadFiles } from "@/lib/supabase/storage"
+import { supabase } from "@/lib/supabase/client"
 
 interface thingPropsExtended extends Omit<thingProps, "schedule"> {
     schedule: {
@@ -53,6 +54,8 @@ export const InspectionForm = ({ thingData, thingId, usersData, invoicesData, st
     }
 
     const createInspection = async () => {
+        const user = await supabase.auth.getUser()
+        const userId = user.data.user?.id
         const {
             inspectionNumber,
             inspectionDate,
@@ -88,13 +91,27 @@ export const InspectionForm = ({ thingData, thingId, usersData, invoicesData, st
                 timesheet,
                 invoiceNumber: invoice?.value,
                 inspector: inspector?.value,
-                submittedBy: null,
+                submittedBy: userId,
                 status: status?.value,
                 workspaceId,
             }),
         })
         const data = await res.json()
         if (data.data) {
+            const { status, inspectionDate, expiryDate } = data.data
+            await fetch(`${apiUrlClient}/v1/thing`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    id: thingId,
+                    inspectionDate,
+                    expiryDate,
+                    status,
+                }),
+            })
+
             handleUploadFiles({ bucket: "inspections", files: documents, folderId: data.data.id })
             toast.success("Inspection successfully created")
             setLoading(false)

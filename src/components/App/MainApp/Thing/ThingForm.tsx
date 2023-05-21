@@ -16,6 +16,7 @@ import type { categoryProps } from "@/lib/recoil/masterdata"
 import { handleUploadFiles } from "@/lib/supabase/storage"
 import { FileWithPath } from "react-dropzone"
 import { FileText, X } from "lucide-react"
+import { supabase } from "@/lib/supabase/client"
 interface ThingFormProps {
     costCentersData: selectableProps[]
     categoriesData: categoryProps[]
@@ -36,9 +37,6 @@ export const ThingForm = ({ costCentersData, categoriesData, manufacturersData, 
     const [currentSubCategory, setCurrentSubCategory] = React.useState<selectableProps | null>(null)
     const [documents, setDocuments] = React.useState<FileWithPath[]>([])
 
-    /**
-     * *It's a processing data from Categories Data
-     */
     const mainCategoriesData = categoriesData
         .filter((item: categoryProps) => item.parentId === null)
         .map((item: categoryProps) => {
@@ -66,7 +64,6 @@ export const ThingForm = ({ costCentersData, categoriesData, manufacturersData, 
             filesArray.push(file)
         })
         setDocuments(filesArray)
-        // console.log(files)
     }
 
     const handleDeleteObjectInArrayByIndex = (index: number) => {
@@ -81,6 +78,8 @@ export const ThingForm = ({ costCentersData, categoriesData, manufacturersData, 
     }
 
     const createThing = async () => {
+        const user = await supabase.auth.getUser()
+        const userId = user.data.user?.id
         const {
             idNumber,
             serialNumber,
@@ -97,7 +96,6 @@ export const ThingForm = ({ costCentersData, categoriesData, manufacturersData, 
             remarks,
             manufacturer,
             parentId,
-            submittedBy,
             expiryDate,
             inspectionDate,
             costCenter,
@@ -126,7 +124,7 @@ export const ThingForm = ({ costCentersData, categoriesData, manufacturersData, 
                 remarks,
                 manufacturer: manufacturer?.value,
                 parentId,
-                submittedBy,
+                submittedBy: userId,
                 expiryDate,
                 inspectionDate,
                 costCenter: costCenter?.value,
@@ -148,50 +146,13 @@ export const ThingForm = ({ costCentersData, categoriesData, manufacturersData, 
         }
     }
 
-    // const updateThing = async () => {
-    //     const { id, name, description, parentId } = categoryData
-    //     if (!name || !description) {
-    //         return
-    //     }
-    //     const res = await fetch(`${apiUrlClient}/v1/masterdata/categories`, {
-    //         method: "PUT",
-    //         headers: {
-    //             "Content-Type": "application/json",
-    //         },
-    //         body: JSON.stringify({
-    //             id,
-    //             name,
-    //             description,
-    //             parentId: parentId?.value,
-    //         }),
-    //     })
-    //     const data = await res.json()
-    //     if (data.data) {
-    //         toast.success("Category successfully updated")
-    //         setLoading(false)
-    //         resetThingDataState()
-    //         router.refresh()
-    //         setMode("view")
-    //     }
-    //     if (data.error) {
-    //         toast.error(data.error.message)
-    //         setLoading(false)
-    //     }
-    // }
-
     React.useEffect(() => {
-        /**
-         * * Process the default expiry date and status
-         */
         const fullDate = new Date().toString()
         const todayDate = moment(fullDate).format("yyyy-MM-DD")
         const setTodayDate = setTimeout(() => {
             setThingData({ ...thingData, expiryDate: todayDate, inspectionDate: todayDate, status: statusData[8] })
         }, 100)
 
-        /**
-         * ! Important to clean up the timeout
-         */
         return () => clearTimeout(setTodayDate)
     }, [statusData])
 

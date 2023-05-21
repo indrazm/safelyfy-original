@@ -15,16 +15,17 @@ interface ThingViewProps {
 
 export const ThingView = ({ thingData }: ThingViewProps) => {
     const currentPath = usePathname()
-    const [documents, setDocuments] = React.useState<any[]>([])
+    const [documents, setDocuments] = React.useState<any>([])
 
     const handleLoadFiles = async () => {
-        const { data }: any[] = await listingFiles({ bucket: "things", folderId: thingData.id as string })
+        const { data } = await listingFiles({ bucket: "things", folderId: thingData.id as string })
         setDocuments(data)
     }
 
     React.useEffect(() => {
         handleLoadFiles()
     }, [thingData])
+
     return (
         <main className="space-y-12">
             <section className="grid grid-cols-2 items-end">
@@ -33,9 +34,12 @@ export const ThingView = ({ thingData }: ThingViewProps) => {
                     <p>You are currently view thing</p>
                 </div>
                 <div className="flex gap-4 justify-end">
-                    <Button auto size="small" variant="secondary">
-                        Inspection History
-                    </Button>
+                    <Link href={`${currentPath}/all-inspection`}>
+                        <Button auto size="small" variant="secondary">
+                            Inspection History
+                        </Button>
+                    </Link>
+
                     <Link href={`${currentPath}/add-inspection`}>
                         <Button auto size="small" variant="secondary">
                             Add Inspection
@@ -90,7 +94,7 @@ export const ThingView = ({ thingData }: ThingViewProps) => {
                     <div className="space-y-4">
                         <div className="grid grid-cols-3 gap-4">
                             <Input readOnly label="Capacity 1" value={thingData.capacity?.capacity1 || 0} />
-                            <Input readOnly label="Capacity 2" value={thingData.capacity?.capacity2 || 0} />{" "}
+                            <Input readOnly label="Capacity 2" value={thingData.capacity?.capacity2 || 0} />
                             <Input readOnly label="Capacity 3" value={thingData.capacity?.capacity3 || 0} />
                         </div>
                         <Input readOnly label="Capacity Unit" value={thingData.capacityUnit?.name || ""} />
@@ -107,7 +111,7 @@ export const ThingView = ({ thingData }: ThingViewProps) => {
                 <div className="w-[calc(100%-320px)]">
                     <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
-                            <Input readOnly label="Expiry Date" value={thingData.status?.name} />
+                            <Input readOnly label="Status" value={thingData.status?.name} />
                             <Input readOnly label="Schedule" value={thingData.schedule?.name} />
                             <Input readOnly type="date" label="Expiry Date" value={thingData.expiryDate} />
                             <Input readOnly type="date" label="Inspection Date" value={thingData.inspectionDate} />
@@ -130,7 +134,7 @@ export const ThingView = ({ thingData }: ThingViewProps) => {
                         <div className="block text-gray-900 font-medium">Documents</div>
                         <div className="flex gap-2 flex-wrap">
                             {documents.length > 0
-                                ? documents.map((file: File, index) => {
+                                ? documents.map((file: File, index: number) => {
                                       return (
                                           <div className="w-fit flex gap-4 items-center bg-white border-1 rounded-md shadow border-gray-300 p-2" key={index}>
                                               <div className="flex gap-2 items-center">

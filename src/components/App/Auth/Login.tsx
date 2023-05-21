@@ -40,10 +40,21 @@ export const Login = () => {
             console.log({ error })
             return
         }
-        setLoading(false)
-        const workspace = await supabase.from("profiles").select("workspace").eq("id", data?.user?.id).single()
-        router.push(workspace.data?.workspace)
-        toast.success("Login Successfully")
+        checkingIfHasWorkspace(data.user?.id as string).then((res) => {
+            const workspaceId = res.data?.workspace
+            if (!Boolean(workspaceId)) {
+                router.push(`/onboarding`)
+                toast.loading("Will onboard you...")
+            } else {
+                router.push(`/${workspaceId}`)
+                toast.success("You are logged in!")
+            }
+            setLoading(false)
+        })
+    }
+
+    const checkingIfHasWorkspace = async (userId: string) => {
+        return await supabase.from("profiles").select("workspace").eq("id", userId).single()
     }
 
     return (

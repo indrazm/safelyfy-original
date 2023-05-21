@@ -1,5 +1,3 @@
-export default async function Page({ params }: { params: { workspaceId: string } }) {
-    const { workspaceId } = params
-
+export default async function Page() {
     return <div>Dashboard Overview</div>
 }

@@ -3,14 +3,21 @@
 import * as React from "react"
 import { Button } from "@/components/shared/ui/button"
 import { Input, TextArea } from "@/components/shared/ui/input"
-import { inspectionDataProps, inspectionDataState } from "@/lib/recoil/inspection"
+import { inspectionDataProps } from "@/lib/recoil/inspection"
 import { invoiceDataProps } from "@/lib/recoil/invoice"
 import OutsideClickHandler from "react-outside-click-handler"
 import { listingFiles } from "@/lib/supabase/storage"
 import { FileText } from "lucide-react"
+
+interface InvoiceDataPropsExtended extends Omit<invoiceDataProps, "currency"> {
+    currency: {
+        currency: string
+    }
+}
+
 interface InspectionViewProps {
     inspectionData: InspectionData
-    invoiceData: invoiceDataProps
+    invoiceData: InvoiceDataPropsExtended
 }
 
 interface InspectionData extends Omit<inspectionDataProps, "inspector"> {
@@ -25,7 +32,7 @@ interface InspectionData extends Omit<inspectionDataProps, "inspector"> {
 
 export const InspectionView = ({ inspectionData, invoiceData }: InspectionViewProps) => {
     const [invoiceInformationOpen, setInvoiceInformationOpen] = React.useState(false)
-    const [documents, setDocuments] = React.useState<any[]>([])
+    const [documents, setDocuments] = React.useState<any>([])
 
     React.useEffect(() => {
         const files = listingFiles({ bucket: "inspections", folderId: inspectionData.id as string })
@@ -100,7 +107,7 @@ export const InspectionView = ({ inspectionData, invoiceData }: InspectionViewPr
                             <div>Files</div>
                             <div className="flex gap-2 flex-wrap">
                                 {documents.length > 0
-                                    ? documents.map((file: File, index) => {
+                                    ? documents.map((file: File, index: number) => {
                                           return (
                                               <div
                                                   className="w-fit flex gap-4 items-center bg-white border-1 rounded-md shadow border-gray-300 p-2"
@@ -108,7 +115,7 @@ export const InspectionView = ({ inspectionData, invoiceData }: InspectionViewPr
                                               >
                                                   <div className="flex gap-2 items-center">
                                                       <FileText size={16} />
-                                                      {/* <div>{file.name}</div> */}
+                                                      <div>{file.name}</div>
                                                   </div>
                                               </div>
                                           )
@@ -123,7 +130,7 @@ export const InspectionView = ({ inspectionData, invoiceData }: InspectionViewPr
     )
 }
 
-const InvoiceDetails = ({ invoiceData }: { invoiceData: invoiceDataProps }) => {
+const InvoiceDetails = ({ invoiceData }: { invoiceData: InvoiceDataPropsExtended }) => {
     return (
         <div className="fixed h-full w-5/12 top-0 right-0 z-50 bg-white border-1 p-20 space-y-8 overflow-auto">
             <main className="space-y-12">

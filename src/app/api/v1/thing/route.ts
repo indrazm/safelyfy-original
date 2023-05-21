@@ -93,8 +93,8 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
     const body = await req.json()
-    const { id, name, description, parentId } = await body
-    const { data, error } = await supabase.from("master-categories").update({ name, description, parentId }).eq("id", id).select().single()
+    const { id, status, inspectionDate, expiryDate } = await body
+    const { data, error } = await supabase.from("things").update({ status, inspectionDate, expiryDate }).eq("id", id).select().single()
 
     return NextResponse.json({ data, error })
 }

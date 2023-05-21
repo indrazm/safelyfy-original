@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
         const { data, error } = await supabase
             .from("inspections")
             .select("*,inspector(full_name,avatar_url),submittedBy(full_name,avatar_url),invoiceNumber(id,invoiceNumber),status(name,color),thingId(idNumber)")
-            .eq("id", inspectionId)
+            .eq("thingId", thingId)
 
         return NextResponse.json({ data, error })
     }
