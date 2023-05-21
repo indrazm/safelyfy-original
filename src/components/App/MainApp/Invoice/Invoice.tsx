@@ -79,6 +79,11 @@ export const AllInvoice = ({ invoicesData }: { invoicesData: invoiceDataProps[] 
                     <h2>Invoices</h2>
                     <p>Here is all of workspace&lsquo;s invoices data</p>
                 </div>
+                <div>
+                    <Link href={`${currentPath}/add`}>
+                        <Button size="small">Create Invoice</Button>
+                    </Link>
+                </div>
             </div>
             <section className="space-y-4">
                 <div className="flex justify-between items-end gap-4">

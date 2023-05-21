@@ -46,9 +46,9 @@ export const Header = () => {
                         <li>
                             <Popover.Root>
                                 <Popover.Trigger className="menu">Master data</Popover.Trigger>
-                                <Popover.Portal>
-                                    <Popover.Content sideOffset={5}>
-                                        <Card className="ml-10 p-4 bg-white">
+                                <Popover.Portal className="z-50">
+                                    <Popover.Content sideOffset={20}>
+                                        <Card className="ml-10 rounded-t-none p-4 bg-white/10 backdrop-blur-xl">
                                             <ul className="text-left flex flex-col gap-2 w-fit">
                                                 <Link href={`/${currentWorkspace}/masterdata/categories`} onClick={() => setMode("view")}>
                                                     <li className="menu text-left">Categories</li>
@@ -85,8 +85,8 @@ export const Header = () => {
                             <div className="bg-indigo-500 text-white w-8 h-8 text-xs font-bold rounded-full flex justify-center items-center">IN</div>
                         </Popover.Trigger>
                         <Popover.Portal>
-                            <Popover.Content sideOffset={10} sticky="always">
-                                <Card className="mr-12 p-4 bg-white z-50">
+                            <Popover.Content sideOffset={16} sticky="always">
+                                <Card className="mr-12 rounded-t-none p-4 bg-white/10 backdrop-blur-xl">
                                     <ul className="text-left flex flex-col gap-2 w-fit">
                                         <li className="menu text-left" onClick={handleLogout}>
                                             Sign out
