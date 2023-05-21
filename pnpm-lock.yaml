@@ -10,6 +10,9 @@ dependencies:
   '@supabase/supabase-js':
     specifier: ^2.21.0
     version: 2.21.0
+  '@types/file-saver':
+    specifier: ^2.0.5
+    version: 2.0.5
   '@types/group-array':
     specifier: ^1.0.1
     version: 1.0.1
@@ -43,6 +46,9 @@ dependencies:
   eslint-plugin-react-hooks:
     specifier: 5.0.0-canary-a389046a5-20230512
     version: 5.0.0-canary-a389046a5-20230512(eslint@8.40.0)
+  file-saver:
+    specifier: ^2.0.5
+    version: 2.0.5
   group-array:
     specifier: ^1.0.0
     version: 1.0.0
@@ -858,6 +864,10 @@ packages:
     resolution: {integrity: sha512-sJ902EfIzn1Fa+qYmjdQqh8tPsoxyBz+8yBKC2HKUxyezKJFwPGOn7pv4WY6QuQW//ySQi5lJjA/ZT9sNWWNTg==}
     dependencies:
       tslib: 2.5.0
+    dev: false
+
+  /@types/file-saver@2.0.5:
+    resolution: {integrity: sha512-zv9kNf3keYegP5oThGLaPk8E081DFDuwfqjtiTzm6PoxChdJ1raSuADf2YGCVIyrSynLrgc8JWv296s7Q7pQSQ==}
     dev: false
 
   /@types/group-array@1.0.1:
@@ -2128,6 +2138,10 @@ packages:
     engines: {node: ^10.12.0 || >=12.0.0}
     dependencies:
       flat-cache: 3.0.4
+    dev: false
+
+  /file-saver@2.0.5:
+    resolution: {integrity: sha512-P9bmyZ3h/PRG+Nzga+rbdI4OEpNDzAVyy74uVO9ATgzLK6VtAsYybF/+TOCvrc0MO793d6+42lLyZTw7/ArVzA==}
     dev: false
 
   /file-selector@0.6.0:

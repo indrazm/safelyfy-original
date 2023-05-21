@@ -8,18 +8,28 @@ import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { listingFiles } from "@/lib/supabase/storage"
 import { FileText } from "lucide-react"
+import FileSaver from "file-saver"
+import { supabase } from "@/lib/supabase/client"
+import { useParams } from "next/navigation"
 
 interface ThingViewProps {
     thingData: thingProps
 }
 
 export const ThingView = ({ thingData }: ThingViewProps) => {
+    const params = useParams()
     const currentPath = usePathname()
     const [documents, setDocuments] = React.useState<any>([])
 
     const handleLoadFiles = async () => {
         const { data } = await listingFiles({ bucket: "things", folderId: thingData.id as string })
         setDocuments(data)
+    }
+
+    const handleDownloadFile = async (file: File) => {
+        const { thingId } = params
+        const data = await supabase.storage.from("things").download(`${thingId}/${file.name}`)
+        FileSaver.saveAs(data.data as Blob)
     }
 
     React.useEffect(() => {
@@ -136,7 +146,11 @@ export const ThingView = ({ thingData }: ThingViewProps) => {
                             {documents.length > 0
                                 ? documents.map((file: File, index: number) => {
                                       return (
-                                          <div className="w-fit flex gap-4 items-center bg-white border-1 rounded-md shadow border-gray-300 p-2" key={index}>
+                                          <div
+                                              onClick={() => handleDownloadFile(file)}
+                                              className="w-fit flex gap-4 items-center bg-white border-1 rounded-md shadow border-gray-300 p-2"
+                                              key={index}
+                                          >
                                               <div className="flex gap-2 items-center">
                                                   <FileText size={16} />
                                                   <div>{file.name}</div>
