@@ -8,12 +8,12 @@ import { Input } from "@/components/shared/ui/input"
 // import { Card } from "@/components/shared/ui/card"
 // import { PlusCircle } from "lucide-react"
 // import { Tag } from "@/components/shared/ui/tag"
-import { usePathname } from "next/navigation"
 import Link from "next/link"
 // import groupArray from "group-array"
 // import OutsideClickHandler from "react-outside-click-handler"
 // import { findStringInArray } from "@/lib/findStringInArray"
 import { inspectionDataProps } from "@/lib/recoil/inspection"
+import { useParams } from "next/navigation"
 
 interface inspectionDataPropsExtended extends Omit<inspectionDataProps, "status"> {
     thingId: {
@@ -26,7 +26,7 @@ interface inspectionDataPropsExtended extends Omit<inspectionDataProps, "status"
 }
 
 export const AllInspection = ({ inspectionData }: { inspectionData: inspectionDataProps[] }) => {
-    const currentPath = usePathname()
+    const { workspaceId } = useParams()
     const [searchTerm, setSearchTerm] = React.useState("")
     const [modifiedData, setModifiedData] = React.useState(inspectionData)
 
@@ -65,7 +65,7 @@ export const AllInspection = ({ inspectionData }: { inspectionData: inspectionDa
             width: 100,
             render: (e: inspectionDataProps) => {
                 return (
-                    <Link href={`${currentPath}/${e.id}`}>
+                    <Link href={`/${workspaceId}/inspection/${e.id}`}>
                         <Button auto size="small" variant="secondary">
                             View
                         </Button>
