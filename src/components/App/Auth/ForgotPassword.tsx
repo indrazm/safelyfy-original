@@ -26,7 +26,7 @@ export const ForgotPassword = () => {
         setLoading(true)
         e.preventDefault()
         const { email } = loginData
-        const { data, error } = await supabase.auth.resetPasswordForEmail(
+        const { error } = await supabase.auth.resetPasswordForEmail(
             email, {
                 redirectTo: '/login',
             }
