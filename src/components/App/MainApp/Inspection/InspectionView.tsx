@@ -8,6 +8,9 @@ import { invoiceDataProps } from "@/lib/recoil/invoice"
 import OutsideClickHandler from "react-outside-click-handler"
 import { listingFiles } from "@/lib/supabase/storage"
 import { FileText } from "lucide-react"
+import { supabase } from "@/lib/supabase/client"
+import { useParams } from "next/navigation"
+import FileSaver from "file-saver"
 
 interface InvoiceDataPropsExtended extends Omit<invoiceDataProps, "currency"> {
     currency: {
@@ -31,12 +34,23 @@ interface InspectionData extends Omit<inspectionDataProps, "inspector"> {
 }
 
 export const InspectionView = ({ inspectionData, invoiceData }: InspectionViewProps) => {
+    const params = useParams()
     const [invoiceInformationOpen, setInvoiceInformationOpen] = React.useState(false)
     const [documents, setDocuments] = React.useState<any>([])
 
+    const handleLoadFiles = async () => {
+        const { data } = await listingFiles({ bucket: "inspections", folderId: inspectionData.id as string })
+        setDocuments(data)
+    }
+
+    const handleDownloadFile = async (file: File) => {
+        const { inspectionId } = params
+        const data = await supabase.storage.from("inspections").download(`${inspectionId}/${file.name}`)
+        FileSaver.saveAs(data.data as Blob)
+    }
+
     React.useEffect(() => {
-        const files = listingFiles({ bucket: "inspections", folderId: inspectionData.id as string })
-        setDocuments(files)
+        handleLoadFiles()
     }, [inspectionData])
 
     return (
@@ -110,6 +124,7 @@ export const InspectionView = ({ inspectionData, invoiceData }: InspectionViewPr
                                     ? documents.map((file: File, index: number) => {
                                           return (
                                               <div
+                                                  onClick={() => handleDownloadFile(file)}
                                                   className="w-fit flex gap-4 items-center bg-white border-1 rounded-md shadow border-gray-300 p-2"
                                                   key={index}
                                               >
