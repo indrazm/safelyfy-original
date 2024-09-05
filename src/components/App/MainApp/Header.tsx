@@ -46,7 +46,7 @@ export const Header = () => {
                         <li>
                             <Popover.Root>
                                 <Popover.Trigger className="menu">Master data</Popover.Trigger>
-                                <Popover.Portal className="z-50">
+                                <Popover.Portal>
                                     <Popover.Content sideOffset={20}>
                                         <Card className="ml-10 rounded-t-none p-4 bg-white/10 backdrop-blur-xl">
                                             <ul className="text-left flex flex-col gap-2 w-fit">
