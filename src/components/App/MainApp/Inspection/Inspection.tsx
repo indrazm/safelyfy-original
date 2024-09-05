@@ -1,10 +1,12 @@
 "use client"
 
 import * as React from "react"
+
 import Table from "rc-table"
 import { Button } from "@/components/shared/ui/button"
 import { Tag } from "@/components/shared/ui/tag"
 import { Input } from "@/components/shared/ui/input"
+import Modal from 'react-modal'
 // import { Card } from "@/components/shared/ui/card"
 // import { PlusCircle } from "lucide-react"
 // import { Tag } from "@/components/shared/ui/tag"
@@ -14,6 +16,7 @@ import Link from "next/link"
 // import { findStringInArray } from "@/lib/findStringInArray"
 import { inspectionDataProps } from "@/lib/recoil/inspection"
 import { useParams } from "next/navigation"
+import { useQRCode } from 'next-qrcode';
 
 interface inspectionDataPropsExtended extends Omit<inspectionDataProps, "status"> {
     thingId: {
@@ -27,8 +30,24 @@ interface inspectionDataPropsExtended extends Omit<inspectionDataProps, "status"
 
 export const AllInspection = ({ inspectionData }: { inspectionData: inspectionDataProps[] }) => {
     const { workspaceId } = useParams()
+    const { Canvas } = useQRCode();
     const [searchTerm, setSearchTerm] = React.useState("")
     const [modifiedData, setModifiedData] = React.useState(inspectionData)
+    const [isOpen, setIsOpen] = React.useState(false)
+    const [qrurl, setQrUrl] = React.useState<any>([])
+    const customStyles = {
+        overlay: {
+           backgroundColor: 'rgba(0, 0, 0, 0.6)'
+        },
+        content: {
+           top: '50%',
+           left: '50%',
+           right: 'auto',
+           bottom: 'auto',
+           marginRight: '-50%',
+           transform: 'translate(-50%, -50%)'
+        }
+    }
 
     const columns = [
         {
@@ -49,6 +68,21 @@ export const AllInspection = ({ inspectionData }: { inspectionData: inspectionDa
             },
         },
         {
+            title: "QR Code",
+            dataIndex: "",
+            key: "qr",
+            width: 100,
+            render: (e: inspectionDataProps) => {
+                return (
+                    <div className="flex items-center gap-2">
+                        <Button onClick={() => {setIsOpen(true); setQrUrl(process?.env?.NEXT_PUBLIC_APP_URL + `/public/${workspaceId}/inspection/${e.id}`);}} auto size="small" variant="secondary">
+                                Show
+                        </Button>
+                    </div>
+                )
+            },
+        },
+        {
             title: "Inspection Date",
             dataIndex: "inspectionDate",
             key: "inspectionDate",
@@ -65,11 +99,13 @@ export const AllInspection = ({ inspectionData }: { inspectionData: inspectionDa
             width: 100,
             render: (e: inspectionDataProps) => {
                 return (
-                    <Link href={`/${workspaceId}/inspection/${e.id}`}>
-                        <Button auto size="small" variant="secondary">
-                            View
-                        </Button>
-                    </Link>
+                    <div className="flex items-center gap-2">
+                        <Link href={`/${workspaceId}/inspection/${e.id}`}>
+                            <Button auto size="small" variant="secondary">
+                                View
+                            </Button>
+                        </Link>
+                    </div>
                 )
             },
         },
@@ -115,6 +151,21 @@ export const AllInspection = ({ inspectionData }: { inspectionData: inspectionDa
                 </div>
                 <Table scroll={{ x: 1400, y: 600 }} rowKey="id" columns={columns} data={modifiedData} tableLayout="auto" />
             </section>
+            <Modal isOpen={isOpen} onRequestClose={() => setIsOpen(false)} style={customStyles}>
+                <Canvas
+                    text={qrurl}
+                    options={{
+                        errorCorrectionLevel: 'M',
+                        margin: 3,
+                        scale: 2,
+                        width: 200,
+                        color: {
+                        dark: '#000000',
+                        light: '#ffffff',
+                        },
+                    }}
+                />
+            </Modal>
         </div>
     )
 }

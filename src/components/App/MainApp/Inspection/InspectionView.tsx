@@ -11,6 +11,7 @@ import { FileText } from "lucide-react"
 import { supabase } from "@/lib/supabase/client"
 import { useParams } from "next/navigation"
 import FileSaver from "file-saver"
+import { useQRCode } from 'next-qrcode';
 
 interface InvoiceDataPropsExtended extends Omit<invoiceDataProps, "currency"> {
     currency: {
@@ -35,11 +36,19 @@ interface InspectionData extends Omit<inspectionDataProps, "inspector"> {
 
 export const InspectionView = ({ inspectionData, invoiceData }: InspectionViewProps) => {
     const params = useParams()
+    const { Canvas } = useQRCode();
+    const { inspectionId } = params
+    
     const [invoiceInformationOpen, setInvoiceInformationOpen] = React.useState(false)
     const [documents, setDocuments] = React.useState<any>([])
+    const [qrurl, setQrUrl] = React.useState<any>([])
 
     const handleLoadFiles = async () => {
         const { data } = await listingFiles({ bucket: "inspections", folderId: inspectionData.id as string })
+        if(data){
+            const urlqr = await supabase.storage.from('inspections').getPublicUrl(`${inspectionId}/${data[data.length - 1].name}`)
+            setQrUrl(urlqr.data.publicUrl)
+        }
         setDocuments(data)
     }
 
@@ -119,6 +128,21 @@ export const InspectionView = ({ inspectionData, invoiceData }: InspectionViewPr
                                 <Input readOnly label="Certificate receiver" value={inspectionData.certificateReceiver} />
                             </div>
                             <div>Files</div>
+                            <div>
+                                <Canvas
+                                    text={qrurl}
+                                    options={{
+                                        errorCorrectionLevel: 'M',
+                                        margin: 3,
+                                        scale: 4,
+                                        width: 200,
+                                        color: {
+                                        dark: '#000000',
+                                        light: '#ffffff',
+                                        },
+                                    }}
+                                />
+                            </div>
                             <div className="flex gap-2 flex-wrap">
                                 {documents.length > 0
                                     ? documents.map((file: File, index: number) => {
