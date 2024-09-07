@@ -75,7 +75,7 @@ export const AllInspection = ({ inspectionData }: { inspectionData: inspectionDa
             render: (e: inspectionDataProps) => {
                 return (
                     <div className="flex items-center gap-2">
-                        <Button onClick={() => {setIsOpen(true); setQrUrl(process?.env?.NEXT_PUBLIC_APP_URL + `/public/${workspaceId}/inspection/${e.id}`);}} auto size="small" variant="secondary">
+                        <Button onClick={() => {setIsOpen(true); setQrUrl(`https://sertifikatlah.com/cert/${e.id}`);}} auto size="small" variant="secondary">
                                 Show
                         </Button>
                     </div>
