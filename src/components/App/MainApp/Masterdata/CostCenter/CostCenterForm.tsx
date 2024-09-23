@@ -41,7 +41,7 @@ export const CostCenterForm = ({ locationsData, groupsData }: costCenterFormProp
     }
 
     const createCostCenter = async () => {
-        const { name, description, location, group } = costCenterData
+        const { name, email, description, location, group } = costCenterData
         if (!name || !description) {
             return
         }
@@ -52,6 +52,7 @@ export const CostCenterForm = ({ locationsData, groupsData }: costCenterFormProp
             },
             body: JSON.stringify({
                 name,
+                email,
                 description,
                 location: location?.value,
                 group: group?.value,
@@ -73,7 +74,7 @@ export const CostCenterForm = ({ locationsData, groupsData }: costCenterFormProp
     }
 
     const updateCostCenter = async () => {
-        const { id, name, description, location, group } = costCenterData
+        const { id, name, email, description, location, group } = costCenterData
         if (!name || !description || !location || !group) {
             return
         }
@@ -85,6 +86,7 @@ export const CostCenterForm = ({ locationsData, groupsData }: costCenterFormProp
             body: JSON.stringify({
                 id,
                 name,
+                email,
                 description,
                 location: location.value,
                 group: group.value,
@@ -113,6 +115,7 @@ export const CostCenterForm = ({ locationsData, groupsData }: costCenterFormProp
             <form onSubmit={handleSubmit}>
                 <div className="space-y-4">
                     <Input id="name" size="medium" label="Name" placeholder="Cost Center Name" onChange={handleEventChange} value={costCenterData.name || ""} />
+                    <Input id="email" size="medium" label="Email" placeholder="Customer Email" onChange={handleEventChange} value={costCenterData.email || ""} />
                     <TextArea
                         id="description"
                         label="Description"

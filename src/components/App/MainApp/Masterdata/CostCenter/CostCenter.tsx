@@ -79,6 +79,7 @@ export const AllCostCenter = ({ costCentersData, onAdd, onEdit }: { costCentersD
                                     ...costCenterData,
                                     id: e.id,
                                     name: e.name,
+                                    email: e.email,
                                     description: e.description,
                                     location,
                                     group,

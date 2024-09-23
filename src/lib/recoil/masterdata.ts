@@ -30,6 +30,7 @@ export const costCenterDataState = atom<costCenterProps>({
     default: {
         id: "",
         name: "",
+        email: "",
         description: "",
         location: null,
         group: null,
@@ -85,6 +86,7 @@ export interface manufacturerProps {
 export interface costCenterProps {
     id?: string
     name: string
+    email: string
     description: string
     location?: selectableProps | null
     group?: selectableProps | null

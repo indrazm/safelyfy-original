@@ -5,7 +5,7 @@ export async function GET(req: NextRequest) {
     const workspaceId = req.nextUrl.searchParams.get("workspaceId")
     const { data, error } = await supabase
         .from("master-costcenter")
-        .select("id,name,description,location(id,name),group(name,description)")
+        .select("id,name,email,description,location(id,name),group(name,description)")
         .eq("workspaceId", workspaceId)
         .eq("deleted", false)
         .order("created_at", { ascending: true })
@@ -17,16 +17,16 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
     const body = await req.json()
-    const { description, name, location, group, workspaceId } = await body
-    const { data, error } = await supabase.from("master-costcenter").insert([{ name, description, location, group, workspaceId }]).select().single()
+    const { description, name, email, location, group, workspaceId } = await body
+    const { data, error } = await supabase.from("master-costcenter").insert([{ name, email, description, location, group, workspaceId }]).select().single()
 
     return NextResponse.json({ data, error })
 }
 
 export async function PUT(req: NextRequest) {
     const body = await req.json()
-    const { id, description, name, location, group } = await body
-    const { data, error } = await supabase.from("master-costcenter").update({ description, name, location, group }).eq("id", id).select().single()
+    const { id, description, name, email, location, group } = await body
+    const { data, error } = await supabase.from("master-costcenter").update({ description, name, email, location, group }).eq("id", id).select().single()
 
     return NextResponse.json({ data, error })
 }
