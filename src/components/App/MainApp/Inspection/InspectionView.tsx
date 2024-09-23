@@ -2,15 +2,19 @@
 
 import * as React from "react"
 import { Button } from "@/components/shared/ui/button"
-import { Input, TextArea } from "@/components/shared/ui/input"
+import { Input, TextArea, FileDropZone } from "@/components/shared/ui/input"
+import { useSetRecoilState } from "recoil"
 import { inspectionDataProps } from "@/lib/recoil/inspection"
 import { invoiceDataProps } from "@/lib/recoil/invoice"
 import OutsideClickHandler from "react-outside-click-handler"
-import { listingFiles } from "@/lib/supabase/storage"
-import { FileText } from "lucide-react"
+import { listingFiles, handleUploadFiles } from "@/lib/supabase/storage"
+import { FileText, X } from "lucide-react"
 import { supabase } from "@/lib/supabase/client"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
+import { FileWithPath } from "react-dropzone"
+import { toast } from "react-hot-toast"
 import FileSaver from "file-saver"
+import { loadingState } from "@/lib/recoil/globals"
 import { useQRCode } from 'next-qrcode';
 
 interface InvoiceDataPropsExtended extends Omit<invoiceDataProps, "currency"> {
@@ -35,18 +39,21 @@ interface InspectionData extends Omit<inspectionDataProps, "inspector"> {
 }
 
 export const InspectionView = ({ inspectionData, invoiceData }: InspectionViewProps) => {
+    const router = useRouter()
     const params = useParams()
     const { Canvas } = useQRCode();
     const { inspectionId } = params
+    const setLoading = useSetRecoilState(loadingState)
     
     const [invoiceInformationOpen, setInvoiceInformationOpen] = React.useState(false)
     const [documents, setDocuments] = React.useState<any>([])
+    const [documents1, setDocuments1] = React.useState<FileWithPath[]>([])
     const [qrurl, setQrUrl] = React.useState<any>([])
 
     const handleLoadFiles = async () => {
         const { data } = await listingFiles({ bucket: "inspections", folderId: inspectionData.id as string })
         if(data){
-            const urlqr = await supabase.storage.from('inspections').getPublicUrl(`${inspectionId}/${data[data.length - 1].name}`)
+            const urlqr = await supabase.storage.from('inspections').getPublicUrl(`${inspectionId}/${data[0].name}`)
             setQrUrl(urlqr.data.publicUrl)
         }
         setDocuments(data)
@@ -56,6 +63,34 @@ export const InspectionView = ({ inspectionData, invoiceData }: InspectionViewPr
         const { inspectionId } = params
         const data = await supabase.storage.from("inspections").download(`${inspectionId}/${file.name}`)
         FileSaver.saveAs(data.data as Blob)
+    }
+
+    const handleFiles = (files: FileWithPath[]) => {
+        const filesArray = [...documents1]
+        files.forEach((file) => {
+            filesArray.push(file)
+        })
+        setDocuments1(filesArray)
+        // console.log(files)
+    }
+
+    const handleDeleteObjectInArrayByIndex = (index: number) => {
+        const filesArray = [...documents1]
+        filesArray.splice(index, 1)
+        setDocuments1(filesArray)
+    }
+
+    const handleSubmit = async () => {
+        setLoading(true)
+        updateInspection()
+    }
+
+    const updateInspection = async () => {
+        handleUploadFiles({ bucket: "inspections", files: documents1, folderId: inspectionData.id as string })
+        toast.success("Inspection document successfully uploaded.")
+        setLoading(false)
+        router.refresh()
+        // router.back()
     }
 
     React.useEffect(() => {
@@ -161,9 +196,32 @@ export const InspectionView = ({ inspectionData, invoiceData }: InspectionViewPr
                                       })
                                     : "No files found"}
                             </div>
+                            <FileDropZone label="Inspection Documents" onFilesChange={handleFiles} />
+                            <div className="flex gap-2 flex-wrap">
+                                {documents1.map((file, index) => {
+                                    return (
+                                        <div className="w-fit flex gap-4 items-center bg-white border-1 rounded-md shadow border-gray-300 p-2" key={index}>
+                                            <div className="flex gap-2 items-center">
+                                                <FileText size={16} />
+                                                <div>{file.name}</div>
+                                            </div>
+                                            <div>
+                                                <X className="cursor-pointer" size={16} onClick={() => handleDeleteObjectInArrayByIndex(index)} />
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </div>
+                        <div className="">
+                            <Button onClick={handleSubmit} type="submit">
+                                Upload Inspection Document
+                            </Button>
                         </div>
                     </div>
+                    
                 </section>
+                
             </main>
         </>
     )
