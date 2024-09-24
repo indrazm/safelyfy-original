@@ -44,6 +44,7 @@ export const InspectionView = ({ inspectionData, invoiceData }: InspectionViewPr
     const { Canvas } = useQRCode();
     const { inspectionId } = params
     const setLoading = useSetRecoilState(loadingState)
+    const [thingQrOpen, setThingQrOpen] = React.useState(false)
     
     const [invoiceInformationOpen, setInvoiceInformationOpen] = React.useState(false)
     const [documents, setDocuments] = React.useState<any>([])
@@ -52,9 +53,10 @@ export const InspectionView = ({ inspectionData, invoiceData }: InspectionViewPr
 
     const handleLoadFiles = async () => {
         const { data } = await listingFiles({ bucket: "inspections", folderId: inspectionData.id as string })
-        if(data){
-            const urlqr = await supabase.storage.from('inspections').getPublicUrl(`${inspectionId}/${data[0].name}`)
+        if(data && data?.length > 0) {
+            const urlqr = supabase.storage.from('inspections').getPublicUrl(`${inspectionId}/${data[0].name}`)
             setQrUrl(urlqr.data.publicUrl)
+            setThingQrOpen(true)
         }
         setDocuments(data)
     }
@@ -111,7 +113,12 @@ export const InspectionView = ({ inspectionData, invoiceData }: InspectionViewPr
                 <section className="space-y-3">
                     <h1>View Inspection</h1>
                     <div className="flex justify-between items-center">
-                        <p>You are currently view inspection</p>
+                        <div><p>You are currently view inspection</p></div>
+                        <div>
+                            <Button size="small" variant="secondary" onClick={() => router.back()}>
+                                Back
+                            </Button>
+                        </div>
                     </div>
                 </section>
 
@@ -164,19 +171,23 @@ export const InspectionView = ({ inspectionData, invoiceData }: InspectionViewPr
                             </div>
                             <div>Files</div>
                             <div>
-                                <Canvas
-                                    text={qrurl}
-                                    options={{
-                                        errorCorrectionLevel: 'M',
-                                        margin: 3,
-                                        scale: 4,
-                                        width: 200,
-                                        color: {
-                                        dark: '#000000',
-                                        light: '#ffffff',
-                                        },
-                                    }}
-                                />
+                            {thingQrOpen && (
+                                <>
+                                    <Canvas
+                                        text={qrurl}
+                                        options={{
+                                            errorCorrectionLevel: 'M',
+                                            margin: 3,
+                                            scale: 4,
+                                            width: 200,
+                                            color: {
+                                            dark: '#000000',
+                                            light: '#ffffff',
+                                            },
+                                        }}
+                                    />
+                                </>
+                            )}
                             </div>
                             <div className="flex gap-2 flex-wrap">
                                 {documents.length > 0
