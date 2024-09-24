@@ -15,7 +15,7 @@ import Link from "next/link"
 // import OutsideClickHandler from "react-outside-click-handler"
 // import { findStringInArray } from "@/lib/findStringInArray"
 import { inspectionDataProps } from "@/lib/recoil/inspection"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { useQRCode } from 'next-qrcode';
 
 interface inspectionDataPropsExtended extends Omit<inspectionDataProps, "status"> {
@@ -30,6 +30,7 @@ interface inspectionDataPropsExtended extends Omit<inspectionDataProps, "status"
 
 export const AllInspection = ({ inspectionData }: { inspectionData: inspectionDataProps[] }) => {
     const { workspaceId } = useParams()
+    const router = useRouter()
     const { Canvas } = useQRCode();
     const [searchTerm, setSearchTerm] = React.useState("")
     const [modifiedData, setModifiedData] = React.useState(inspectionData)
@@ -133,6 +134,11 @@ export const AllInspection = ({ inspectionData }: { inspectionData: inspectionDa
                 <div>
                     <h2>Inspections</h2>
                     <p>Here is all of workspace&lsquo;s inspections data</p>
+                </div>
+                <div>
+                    <Button size="small" variant="secondary" onClick={() => router.back()}>
+                        Back
+                    </Button>
                 </div>
             </div>
             <section className="space-y-4">

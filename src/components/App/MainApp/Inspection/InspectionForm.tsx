@@ -174,9 +174,12 @@ export const InspectionForm = ({ thingData, thingId, usersData, invoicesData, st
                         <div className="px-4 py-[6px] bg-gray-100 text-gray-600 border-1 border-gray-400 rounded-md w-fit">
                             You are currently creating inspection for thing with Id Number : <strong className="text-black">{thingData.idNumber}</strong>
                         </div>
-                        <div>
+                        <div className="flex justify-end gap-4">
                             <Button size="small" variant="secondary" onClick={() => setThingInformationOpen(true)}>
-                                View thing Information
+                                View thing Info
+                            </Button>
+                            <Button size="small" variant="secondary" onClick={() => router.back()}>
+                                Back
                             </Button>
                         </div>
                     </div>
