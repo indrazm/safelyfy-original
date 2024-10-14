@@ -21,6 +21,7 @@ export const inspectionDataState = atom<inspectionDataProps>({
 
 export interface inspectionDataProps {
     id?: string
+    thingId: string
     inspectionNumber: string
     inspectionDate: Date | null | string
     expiryDate: Date | null | string
@@ -34,4 +35,5 @@ export interface inspectionDataProps {
     inspector?: selectableProps | null
     status?: selectableProps | null
     submittedBy?: string
+    workspaceId: string
 }

@@ -2,8 +2,9 @@
 
 import * as React from "react"
 import { Button } from "@/components/shared/ui/button"
-import { Input, TextArea, FileDropZone } from "@/components/shared/ui/input"
-import { useSetRecoilState } from "recoil"
+import { Input, TextArea, FileDropZone, Selectable } from "@/components/shared/ui/input"
+import { inspectionDataState } from "@/lib/recoil/inspection"
+import { useRecoilState, useSetRecoilState } from "recoil"
 import { inspectionDataProps } from "@/lib/recoil/inspection"
 import { invoiceDataProps } from "@/lib/recoil/invoice"
 import OutsideClickHandler from "react-outside-click-handler"
@@ -16,6 +17,7 @@ import { toast } from "react-hot-toast"
 import FileSaver from "file-saver"
 import { loadingState } from "@/lib/recoil/globals"
 import { useQRCode } from 'next-qrcode';
+import { useState } from 'react';
 
 interface InvoiceDataPropsExtended extends Omit<invoiceDataProps, "currency"> {
     currency: {
@@ -26,6 +28,10 @@ interface InvoiceDataPropsExtended extends Omit<invoiceDataProps, "currency"> {
 interface InspectionViewProps {
     inspectionData: InspectionData
     invoiceData: InvoiceDataPropsExtended
+    usersData: selectableProps[]
+    invoicesData: selectableProps[]
+    statusData: selectableProps[]
+    thingId: string
 }
 
 interface InspectionData extends Omit<inspectionDataProps, "inspector"> {
@@ -38,18 +44,19 @@ interface InspectionData extends Omit<inspectionDataProps, "inspector"> {
     }
 }
 
-export const InspectionView = ({ inspectionData, invoiceData }: InspectionViewProps) => {
+export const InspectionView = ({ usersData, statusData, invoiceData }: InspectionViewProps) => {
     const router = useRouter()
     const params = useParams()
     const { Canvas } = useQRCode();
     const { inspectionId } = params
+    const [inspectionData, setInspectionData] = useRecoilState(inspectionDataState)
     const setLoading = useSetRecoilState(loadingState)
-    const [thingQrOpen, setThingQrOpen] = React.useState(false)
+    const [thingQrOpen, setThingQrOpen] = useState(false)
     
-    const [invoiceInformationOpen, setInvoiceInformationOpen] = React.useState(false)
-    const [documents, setDocuments] = React.useState<any>([])
-    const [documents1, setDocuments1] = React.useState<FileWithPath[]>([])
-    const [qrurl, setQrUrl] = React.useState<any>([])
+    const [invoiceInformationOpen, setInvoiceInformationOpen] = useState(false)
+    const [documents, setDocuments] = useState<any>([])
+    const [documents1, setDocuments1] = useState<FileWithPath[]>([])
+    const [qrurl, setQrUrl] = useState<any>([])
 
     const handleLoadFiles = async () => {
         const { data } = await listingFiles({ bucket: "inspections", folderId: inspectionData.id as string })
@@ -80,6 +87,11 @@ export const InspectionView = ({ inspectionData, invoiceData }: InspectionViewPr
         const filesArray = [...documents1]
         filesArray.splice(index, 1)
         setDocuments1(filesArray)
+    }
+
+    const handleEventChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { id, value } = event.target
+        setInspectionData({ ...inspectionData, [id]: value })
     }
 
     const handleSubmit = async () => {
@@ -131,11 +143,21 @@ export const InspectionView = ({ inspectionData, invoiceData }: InspectionViewPr
                     <div className="w-[calc(100%-320px)]">
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
-                                <Input readOnly label="Inspection date" value={inspectionData.inspectionDate?.toString()} />
-                                <Input readOnly label="Expiry date" value={inspectionData.expiryDate?.toString()} />
+                                <Input label="Inspection date" value={inspectionData.inspectionDate?.toString()} onChange={handleEventChange} />
+                                <Input label="Expiry date" value={inspectionData.expiryDate?.toString()} onChange={handleEventChange} />
                             </div>
-                            <Input readOnly label="Inspector" value={inspectionData.inspector?.full_name} />
-                            <Input readOnly label="Status" value={inspectionData.status?.name} />
+                            <Selectable
+                                label="Inspector"
+                                value={inspectionData.inspector}
+                                options={usersData}
+                                onChange={(e: selectableProps) => setInspectionData({ ...inspectionData, inspector: e })}
+                            />
+                            <Selectable
+                                label="Status"
+                                value={inspectionData.status}
+                                options={statusData}
+                                onChange={(e: selectableProps) => setInspectionData({ ...inspectionData, status: e })}
+                            />
                         </div>
                     </div>
                 </section>
@@ -147,8 +169,8 @@ export const InspectionView = ({ inspectionData, invoiceData }: InspectionViewPr
                         <p>Invoice number</p>
                     </div>
                     <div className="w-[calc(100%-320px)] space-y-4">
-                        <Input readOnly label="Timesheet" value={inspectionData.timesheet} />
-                        <Input readOnly label="Invoice" value={inspectionData.invoiceNumber?.invoiceNumber} />
+                        <Input label="Timesheet" value={inspectionData.timesheet} onChange={handleEventChange} />
+                        <Input label="Invoice" value={inspectionData.invoiceNumber?.invoiceNumber} onChange={handleEventChange} />
                         <Button size="small" variant="secondary" auto onClick={() => setInvoiceInformationOpen(true)}>
                             View Invoice Detail
                         </Button>
@@ -163,11 +185,11 @@ export const InspectionView = ({ inspectionData, invoiceData }: InspectionViewPr
                     </div>
                     <div className="w-[calc(100%-320px)] space-y-4">
                         <div className="space-y-4">
-                            <TextArea readOnly label="Findings" id="findings" placeholder="2000" value={inspectionData.findings} />
-                            <Input readOnly label="Operator" id="operator" placeholder="Operator" value={inspectionData.operator} />
+                            <TextArea label="Findings" id="findings" placeholder="2000" value={inspectionData.findings} onChange={handleEventChange} />
+                            <Input label="Operator" id="operator" placeholder="Operator" value={inspectionData.operator} onChange={handleEventChange} />
                             <div className="grid grid-cols-2 gap-4">
-                                <Input readOnly label="Certificate number" value={inspectionData.certificateNumber} />
-                                <Input readOnly label="Certificate receiver" value={inspectionData.certificateReceiver} />
+                                <Input label="Certificate number" value={inspectionData.certificateNumber} onChange={handleEventChange} />
+                                <Input label="Certificate receiver" value={inspectionData.certificateReceiver} onChange={handleEventChange} />
                             </div>
                             <div>Files</div>
                             <div>
@@ -255,7 +277,7 @@ const InvoiceDetails = ({ invoiceData }: { invoiceData: InvoiceDataPropsExtended
                     </div>
                     <div className="space-y-4">
                         <div className="grid grid-cols-1 gap-4">
-                            <Input label="Invoice number" value={invoiceData.invoiceNumber} />
+                            {/* <Input label="Invoice number" value={invoiceData.invoiceNumber} /> */}
                             <div className="grid grid-cols-2 gap-2">
                                 <Input label="Amount" type="number" id="amount" placeholder="99" value={invoiceData.amount || 0} />
                                 <Input label="Currency" value={invoiceData.currency?.currency} />
