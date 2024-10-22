@@ -92,7 +92,6 @@ export const InspectionView = ({ statusData, usersData, inspectionData, invoiceD
             filesArray.push(file)
         })
         setDocuments1(filesArray)
-        // console.log(files)
     }
 
     const handleDeleteObjectInArrayByIndex = (index: number) => {
@@ -126,8 +125,6 @@ export const InspectionView = ({ statusData, usersData, inspectionData, invoiceD
             inspector,
             status,
         } = inspectionDataTemp
-
-        console.log(invoiceNumber)
 
         if (!inspectionNumber || !inspectionDate || !expiryDate || !timesheet || !findings || !invoiceNumber || !inspector) {
             toast.error("Please fill all fields")
