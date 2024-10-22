@@ -163,7 +163,7 @@ export const InspectionView = ({ statusData, usersData, inspectionData, invoiceD
             toast.success("Inspection data successfully uploaded.")
 
             setLoading(false)
-            router.back()
+            router.refresh()
         }
         if (data.error) {
             toast.error(data.error.message)
@@ -251,7 +251,7 @@ export const InspectionView = ({ statusData, usersData, inspectionData, invoiceD
                         <p>Invoice number</p>
                     </div>
                     <div className="w-[calc(100%-320px)] space-y-4">
-                        <Input label="Timesheet" defaultValue={inspectionDataTemp.timesheet} />
+                        <Input label="Timesheet" id="timesheet" value={inspectionDataTemp.timesheet} onChange={handleEventChange} />
                         <Selectable
                             label="Invoice"
                             value={selectedInvoice}
@@ -278,8 +278,8 @@ export const InspectionView = ({ statusData, usersData, inspectionData, invoiceD
                             <TextArea label="Findings" id="findings" placeholder="2000" value={inspectionDataTemp.findings} onChange={handleEventChange} />
                             <Input label="Operator" id="operator" placeholder="Operator" value={inspectionDataTemp.operator} onChange={handleEventChange} />
                             <div className="grid grid-cols-2 gap-4">
-                                <Input label="Certificate number" value={inspectionDataTemp.certificateNumber} onChange={handleEventChange} />
-                                <Input label="Certificate receiver" value={inspectionDataTemp.certificateReceiver} onChange={handleEventChange} />
+                                <Input label="Certificate number" id="certificateNumber" value={inspectionDataTemp.certificateNumber} onChange={handleEventChange} />
+                                <Input label="Certificate receiver" id="certificateReceiver" value={inspectionDataTemp.certificateReceiver} onChange={handleEventChange} />
                             </div>
                             <div>Files</div>
                             <div>
