@@ -80,3 +80,41 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ data, error })
 }
+
+export async function PUT(req: NextRequest) {
+    const body = await req.json()
+    const {
+        id,
+        inspectionNumber,
+        timesheet,
+        inspectionDate,
+        expiryDate,
+        findings,
+        operator,
+        status,
+        certificateNumber,
+        certificateReceiver,
+        invoiceNumber,
+        inspector,
+    } = await body
+    const { data, error } = await supabase
+        .from("inspections")
+        .update({
+            inspectionDate,
+            inspectionNumber,
+            expiryDate,
+            findings,
+            operator,
+            certificateNumber,
+            certificateReceiver,
+            timesheet,
+            invoiceNumber,
+            inspector,
+            status,
+        })
+        .eq("id", id)
+        .select()
+        .single()
+
+    return NextResponse.json({ data, error })
+}
