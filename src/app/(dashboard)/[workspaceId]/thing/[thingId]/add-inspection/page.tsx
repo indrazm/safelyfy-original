@@ -11,7 +11,7 @@ export default async function Page({ params }: { params: { workspaceId: string; 
     return <InspectionForm thingData={thingData} thingId={thingId} usersData={usersData} invoicesData={invoicesData} statusData={statusData} />
 }
 
-async function getUsersData(workspaceId: string) {
+export async function getUsersData(workspaceId: string) {
     const response = await fetch(`${apiUrlServer}/v1/globals/users?workspaceId=${workspaceId}`, {
         cache: "no-cache",
     })
@@ -21,6 +21,7 @@ async function getUsersData(workspaceId: string) {
     })
     return modifiedData
 }
+
 async function getInvoiceData(workspaceId: string) {
     const response = await fetch(`${apiUrlServer}/v1/invoice?workspaceId=${workspaceId}`, {
         cache: "no-cache",
@@ -31,7 +32,7 @@ async function getInvoiceData(workspaceId: string) {
     })
     return modifiedData
 }
-async function getStatusData() {
+export async function getStatusData() {
     const response = await fetch(`${apiUrlServer}/v1/globals/status`, {
         cache: "no-cache",
     })

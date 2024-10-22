@@ -1,13 +1,16 @@
 import { apiUrlServer } from "@/lib/constant/apiUrl"
 import { InspectionView } from "@/components/App/MainApp/Inspection/InspectionView"
+import { getStatusData, getUsersData } from "../../thing/[thingId]/add-inspection/page"
 
-export default async function Page({ params }: { params: { inspectionId: string } }) {
+export default async function Page({ params }: { params: { workspaceId: string; inspectionId: string } }) {
     const { inspectionId } = params
     const inspectionData = await getInspectionData(inspectionId)
     const invoiceId = await inspectionData.invoiceNumber.id
     const invoiceData = await getInvoiceData(invoiceId)
+    const usersData = await getUsersData(params.workspaceId)
+    const statusData = await getStatusData()
 
-    return <InspectionView inspectionData={inspectionData} invoiceData={invoiceData} />
+    return <InspectionView statusData={statusData} usersData={usersData} inspectionData={inspectionData} invoiceData={invoiceData} />
 }
 
 async function getInspectionData(inspectionId: string) {

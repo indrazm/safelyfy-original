@@ -18,7 +18,9 @@ export async function GET(req: NextRequest) {
     if (inspectionId) {
         const { data, error } = await supabase
             .from("inspections")
-            .select("*,inspector(full_name,avatar_url),submittedBy(full_name,avatar_url),invoiceNumber(id,invoiceNumber),status(name,color),thingId(idNumber)")
+            .select(
+                "*,inspector(id,full_name,avatar_url),submittedBy(full_name,avatar_url),invoiceNumber(id,invoiceNumber),status(name,color),thingId(idNumber)"
+            )
             .eq("id", inspectionId)
             .single()
 

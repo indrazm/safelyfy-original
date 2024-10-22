@@ -2,7 +2,7 @@ import * as React from "react"
 import { tv } from "tailwind-variants"
 import { useRecoilValue } from "recoil"
 import { loadingState } from "@/lib/recoil/globals"
-import Select from "react-select"
+import Select, { ActionMeta } from "react-select"
 import { twMerge } from "tailwind-merge"
 import { useDropzone } from "react-dropzone"
 import { FileImage } from "lucide-react"
@@ -126,7 +126,7 @@ interface SelectableProps {
         | { label: string; value: string | number | boolean }
     >
     // eslint-disable-next-line no-unused-vars
-    onChange: (e: selectableProps) => void
+    onChange: (newValue: any, actionMeta: ActionMeta<any>) => void
 }
 
 const Selectable = ({ value, options, label, onChange }: SelectableProps) => {
