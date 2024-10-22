@@ -16,6 +16,8 @@ export const inspectionDataState = atom<inspectionDataProps>({
         inspector: null,
         status: null,
         submittedBy: "",
+        thingId: "",
+        workspaceId: "",
     },
 })
 
