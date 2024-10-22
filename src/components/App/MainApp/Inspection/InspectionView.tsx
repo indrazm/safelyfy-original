@@ -16,6 +16,7 @@ import { toast } from "react-hot-toast"
 import FileSaver from "file-saver"
 import { loadingState } from "@/lib/recoil/globals"
 import { useQRCode } from "next-qrcode"
+import { apiUrlClient } from "@/lib/constant/apiUrl"
 
 interface InvoiceDataPropsExtended extends Omit<invoiceDataProps, "currency"> {
     currency: {
@@ -28,6 +29,7 @@ interface InspectionViewProps {
     usersData: any
     inspectionData: InspectionData
     invoiceData: InvoiceDataPropsExtended
+    invoicesData: any
 }
 
 interface InspectionData extends Omit<inspectionDataProps, "inspector"> {
@@ -42,7 +44,7 @@ interface InspectionData extends Omit<inspectionDataProps, "inspector"> {
     }
 }
 
-export const InspectionView = ({ statusData, usersData, inspectionData, invoiceData }: InspectionViewProps) => {
+export const InspectionView = ({ statusData, usersData, inspectionData, invoiceData, invoicesData }: InspectionViewProps) => {
     const [inspectionDataTemp, setInspectionDataTemp] = React.useState(inspectionData)
     const [selectedInspector, setSelectedInspector] = React.useState({
         id: inspectionData.inspector.id,
@@ -99,19 +101,74 @@ export const InspectionView = ({ statusData, usersData, inspectionData, invoiceD
         setDocuments1(filesArray)
     }
 
+    const handleEventChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { id, value } = event.target
+        setInspectionDataTemp({ ...inspectionDataTemp, [id]: value })
+    }
+
     const handleSubmit = async () => {
         setLoading(true)
         updateInspection()
     }
 
     const updateInspection = async () => {
-        // TODO
-        // Bikin API dan Function untuk update Inspection.
-        // ---------
-        // handleUploadFiles({ bucket: "inspections", files: documents1, folderId: inspectionDataTemp.id as string })
-        // toast.success("Inspection document successfully uploaded.")
-        // setLoading(false)
-        // router.refresh()
+        const {
+            id,
+            inspectionNumber,
+            inspectionDate,
+            expiryDate,
+            timesheet,
+            findings,
+            operator,
+            certificateNumber,
+            certificateReceiver,
+            invoiceNumber,
+            inspector,
+            status,
+        } = inspectionDataTemp
+
+        console.log(invoiceNumber)
+
+        if (!inspectionNumber || !inspectionDate || !expiryDate || !timesheet || !findings || !invoiceNumber || !inspector) {
+            toast.error("Please fill all fields")
+            setLoading(false)
+            return
+        }
+
+        const res = await fetch(`${apiUrlClient}/v1/inspections`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                id,
+                inspectionDate,
+                inspectionNumber,
+                expiryDate,
+                findings,
+                operator,
+                certificateNumber,
+                certificateReceiver,
+                timesheet,
+                invoiceNumber: invoiceNumber?.id,
+                inspector: inspector?.id,
+                status: status?.value,
+            }),
+        })
+
+        const data = await res.json()
+
+        if (data.data) {
+            handleUploadFiles({ bucket: "inspections", files: documents1, folderId: inspectionDataTemp.id as string })
+            toast.success("Inspection data successfully uploaded.")
+
+            setLoading(false)
+            router.back()
+        }
+        if (data.error) {
+            toast.error(data.error.message)
+            setLoading(false)
+        }
     }
 
     React.useEffect(() => {
@@ -198,7 +255,7 @@ export const InspectionView = ({ statusData, usersData, inspectionData, invoiceD
                         <Selectable
                             label="Invoice"
                             value={selectedInvoice}
-                            options={invoiceData}
+                            options={invoicesData}
                             onChange={(e) => {
                                 setSelectedInvoice(e)
                                 setInspectionDataTemp({ ...inspectionDataTemp, invoice: e })
@@ -218,11 +275,11 @@ export const InspectionView = ({ statusData, usersData, inspectionData, invoiceD
                     </div>
                     <div className="w-[calc(100%-320px)] space-y-4">
                         <div className="space-y-4">
-                            <TextArea label="Findings" id="findings" placeholder="2000" defaultValue={inspectionDataTemp.findings} />
-                            <Input label="Operator" id="operator" placeholder="Operator" defaultValue={inspectionDataTemp.operator} />
+                            <TextArea label="Findings" id="findings" placeholder="2000" value={inspectionDataTemp.findings} onChange={handleEventChange} />
+                            <Input label="Operator" id="operator" placeholder="Operator" value={inspectionDataTemp.operator} onChange={handleEventChange} />
                             <div className="grid grid-cols-2 gap-4">
-                                <Input label="Certificate number" defaultValue={inspectionDataTemp.certificateNumber} />
-                                <Input label="Certificate receiver" defaultValue={inspectionDataTemp.certificateReceiver} />
+                                <Input label="Certificate number" value={inspectionDataTemp.certificateNumber} onChange={handleEventChange} />
+                                <Input label="Certificate receiver" value={inspectionDataTemp.certificateReceiver} onChange={handleEventChange} />
                             </div>
                             <div>Files</div>
                             <div>
@@ -308,18 +365,18 @@ const InvoiceDetails = ({ invoiceData }: { invoiceData: InvoiceDataPropsExtended
                     </div>
                     <div className="space-y-4">
                         <div className="grid grid-cols-1 gap-4">
-                            <Input label="Invoice number" defaultValue={invoiceData.invoiceNumber} />
+                            <Input readOnly label="Invoice number" defaultValue={invoiceData.invoiceNumber} />
                             <div className="grid grid-cols-2 gap-2">
-                                <Input label="Amount" type="number" id="amount" placeholder="99" defaultValue={invoiceData.amount || 0} />
-                                <Input label="Currency" defaultValue={invoiceData.currency?.currency} />
+                                <Input readOnly label="Amount" type="number" id="amount" placeholder="99" defaultValue={invoiceData.amount || 0} />
+                                <Input readOnly label="Currency" defaultValue={invoiceData.currency?.currency} />
                             </div>
                         </div>
                         <div className="grid grid-cols-3 gap-4">
-                            <Input label="VAT ID" defaultValue={invoiceData.vatId || ""} />
-                            <Input label="LPO" defaultValue={invoiceData.lpo || ""} />
-                            <Input label="Quantity" defaultValue={invoiceData.quantity || 1} />
+                            <Input readOnly label="VAT ID" defaultValue={invoiceData.vatId || ""} />
+                            <Input readOnly label="LPO" defaultValue={invoiceData.lpo || ""} />
+                            <Input readOnly label="Quantity" defaultValue={invoiceData.quantity || 1} />
                         </div>
-                        <Input label="Company name" defaultValue={invoiceData.company || ""} />
+                        <Input readOnly label="Company name" defaultValue={invoiceData.company || ""} />
                     </div>
                 </section>
 
@@ -330,7 +387,7 @@ const InvoiceDetails = ({ invoiceData }: { invoiceData: InvoiceDataPropsExtended
                         <p>Description of Invoice</p>
                     </div>
                     <div className="space-y-4">
-                        <TextArea label="Description" defaultValue={invoiceData.description || ""} />
+                        <TextArea readOnly label="Description" defaultValue={invoiceData.description || ""} />
                     </div>
                 </section>
             </main>
